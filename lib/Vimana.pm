@@ -12,11 +12,11 @@ Vimana - vim script port manager
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -31,6 +31,7 @@ sub index {
     $INDEX ||= Vimana::Index->new;
     $INDEX->init();
     unless ( $INDEX->get() ) {
+        require Vimana::Command::Update;
         my $index = Vimana::Command::Update->fetch_index();
         $INDEX->update( $index );
     }
