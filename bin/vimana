@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+use lib 'lib';
+use strict;
+use warnings;
+use Vimana;
+
+use Vimana::Command;
+
+my $cmd = shift @ARGV;
+my $ret = Vimana::Command->invoke( $cmd, @ARGV );
+
+exit (defined $ret ? $ret : 1);
+
+
+
+
+
+
+=head1 AUTHORS
+
+Cornelius E<lt>cornelius.howl@gmail.com<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2003-2005 by You-An Lin (Cornelius) E<lt>cornelius.howl@gmail.com<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
+
