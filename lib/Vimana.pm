@@ -12,11 +12,11 @@ Vimana - Vim script manager.
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 DESCRIPTION
 
@@ -43,6 +43,8 @@ NOTE: Vimana only provides search,info,install commmands currently.
 
 =head1 FUNCTIONS
 
+=head2 index
+
 =cut
 
 sub index {
@@ -60,7 +62,7 @@ sub index {
 
 =head1 AUTHOR
 
-Cornelius ( You-An Lin ) C<< <cornelius at cpan.org> >>
+You-An Lin 林佑安 ( Cornelius / c9s ) C<< <cornelius.howl at gmail.com> >>
 
 =head2 Vimana Git Repository 
 
@@ -81,7 +83,6 @@ automatically be notified of progress on your bug as I make changes.
 You can find documentation for this module with the perldoc command.
 
     perldoc Vimana
-
 
 You can also look for information at:
 
@@ -111,7 +112,7 @@ L<http://search.cpan.org/dist/Vimana>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2007 Cornelius, all rights reserved.
+Copyright 2007 You-An Lin ( Cornelius / c9s ), all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

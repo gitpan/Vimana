@@ -17,6 +17,8 @@ $| = 1;
 
 Vimna::AutoInstall
 
+=head1 DESCRIPTION
+
 =head1 FUNCTIONS
 
 =head2 can_autoinstall
@@ -24,7 +26,7 @@ Vimna::AutoInstall
 =cut
 
 sub can_autoinstall {
-    my ( $class, $file, $info , $page ) = @_;
+    my ( $class, $cmd , $file, $info , $page ) = @_;
 
     if( is_archive_file( $file ) ) {
         my $archive = Archive::Any->new($file);
@@ -33,10 +35,22 @@ sub can_autoinstall {
         return i_know_what_to_do( $nodes );
     }
     elsif( is_text_file( $file ) ) {
-        # XXX: detect file type , colorscheme ? plugin ? 
-        # inspect file content
-
+        return 1 if $info->{type} eq 'color scheme'
+                        or $info->{type} eq 'syntax'
+                        or $info->{type} eq 'indent';
+        return 0;
     }
+}
+
+sub inspect_text_content {
+    my $file = shift;
+    local $/;
+    open my $fh , "<" , $file;
+    my $content = <$fh>;
+    close $fh;
+
+    return 'colors' if $content =~ m/let\s+(g:)?colors_name\s*=/;
+    return undef;
 }
 
 =head2 install
@@ -44,15 +58,23 @@ sub can_autoinstall {
 =cut
 
 sub install {
-    my ( $class, $file, $info , $page , $opt ) = @_;
+    my ( $class , %args ) = @_;
+    # my ( $class, $cmd, $file, $info, $page ) = @_;
 
-    if( is_archive_file( $file ) ) {
-        $class->install_from_archive(  $file , $info , $page , $opt  );
+    if( is_archive_file( $args{target} ) ) {
+        return $class->install_from_archive( %args );
     }
-    elsif( is_text_file( $file ) ) {
-        if( $info->{type} eq 'color scheme' ) {
-            $class->install_to( $file , 'colors' );
-        }
+    elsif( is_text_file( $args{target} ) ) {
+
+        return $class->install_to( $args{target} , 'colors' )
+            if $args{info}->{type} eq 'color scheme' ;
+
+        return $class->install_to( $args{target} , 'syntax' )
+            if $args{info}->{type} eq 'syntax' ;
+
+        return $class->install_to( $args{target} , 'indent' )
+            if $args{info}->{type} eq 'indent' ;
+
     }
 }
 
@@ -61,7 +83,8 @@ sub install {
 =cut
 
 sub install_to {
-
+    my ( $class , $file , $dir ) = @_;
+    fcopy( $file => File::Spec->join( runtime_path(), $dir ) );
 }
 
 =head2 install_from_archive 
@@ -69,45 +92,50 @@ sub install_to {
 =cut
 
 sub install_from_archive {
-    my ( $class , $file , $info , $opt ) = @_;
+    my ( $class , %args ) = @_;
+    my ( $cmd, $file, $info )
+        = ( $args{command}, $args{target}, $args{info} );
 
     # XXX: make sure is archive file
     my $archive = Archive::Any->new( $file );
     my @files = $archive->files;
 
-    if( $opt->{verbose} ) {
+    if( $cmd->{verbose} ) {
         for (@files ) {
             print "FILE: $_ \n";
         }
     }
 
-    print "Creating temporary directory.\n" if $opt->{verbose};
+    print "Creating temporary directory.\n" if $cmd->{verbose};
 
     my $out = tempdir( CLEANUP => 1 );
     rmtree [ $out ] if -e $out;
     mkpath [ $out ];
 
-    print "Extracting...\n" if $opt->{verbose};
+    print "Extracting...\n" if $cmd->{verbose};
     $archive->extract( $out );  
 
     my @subdirs = File::Find::Rule->file->in(  $out );
 
     # XXX: check vim runtime path subdirs
-    print "Initializing vim runtime path...\n" if $opt->{verbose};
+    print "Initializing vim runtime path...\n" if $cmd->{verbose};
     $class->init_vim_runtime();
 
     my $nodes = $class->find_runtime_node( \@subdirs );
     
-    print "Runtime path in extracted directory\n" if $opt->{verbose};
-    print join("\n" , keys %$nodes ) . "\n" if $opt->{verbose};
+    print "Runtime path in extracted directory\n" if $cmd->{verbose};
+    print join("\n" , keys %$nodes ) . "\n" if $cmd->{verbose};
 
-    print "Installing...\n" if $opt->{verbose};
-    $class->install_from_nodes( $nodes );
+    print "Installing...\n" if $cmd->{verbose};
+    $class->install_from_nodes( $nodes , runtime_path() );
 
-    print "Done\n";
+    return 1;
 }
 
 =head2 runtime_path
+
+You can export enviroment variable VIMANA_RUNTIME_PATH to override default
+runtime path.
 
 =cut
 
@@ -116,17 +144,19 @@ sub runtime_path {
     return $ENV{VIMANA_RUNTIME_PATH} || File::Spec->join( $ENV{HOME} , '.vim' );
 }
 
+
+sub get_mine_type {
+    my $type = File::Type->new->checktype_filename( $_[ 0 ] );
+    die "can not found file type from @{[ $_[0] ]}" unless $type;
+    return $type;
+}
+
 =head2 is_archive_file
 
 =cut
 
 sub is_archive_file {
-    my $file = shift;
-    my $ft = File::Type->new();
-    my $type = $ft->checktype_filename($file);
-
-    die "can not found file type: $type" unless $type;
-
+    my $type = get_mine_type( $_[ 0 ] );
     return 1 if $type =~ m{(x-bzip2|x-gzip|x-gtar|zip|rar|tar)};
     return 0;
 }
@@ -136,9 +166,7 @@ sub is_archive_file {
 =cut
 
 sub is_text_file {
-    my $file = shift;
-    my $ft = File::Type->new();
-    my $type = $ft->checktype_filename($file);
+    my $type = get_mine_type( $_[ 0 ] );
     return 1 if $type =~ m{octet-stream};
     return 0;
 }
@@ -161,9 +189,9 @@ sub init_vim_runtime {
 =cut
 
 sub install_from_nodes {
-    my ($class , $nodes) = @_;
+    my ($class , $nodes , $to ) = @_;
     for my $node  ( grep { $nodes->{ $_ } > 1 } keys %$nodes ) {
-        my (@ret) = dircopy($node, runtime_path );
+        my (@ret) = dircopy($node, $to );
     }
 }
 
@@ -195,5 +223,19 @@ sub find_runtime_node {
     return $nodes;
 }
 
+
+=head1 AUTHOR
+
+You-An Lin 林佑安 ( Cornelius / c9s ) C<< <cornelius.howl at gmail.com> >>
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2007 You-An Lin ( Cornelius / c9s ), all rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+
+=cut
 
 1;

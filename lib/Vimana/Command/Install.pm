@@ -20,7 +20,6 @@ sub options {
 sub run {
     my ( $self, $package ) = @_;
 
-
     my $index = Vimana->index();
     my $info = $index->find_package( $package );
 
@@ -32,12 +31,42 @@ sub run {
     my $filename = $page->{FILENAME};
     my $target = File::Spec->join( $dir , $filename );
 
-    print "Download as $target\n";
-    LWP::Simple::getstore( $url , $target  );
+    print "Download from: $url\n";
+    my $file_content = LWP::Simple::get( $url );
 
-    if( Vimana::AutoInstall->can_autoinstall( $target , $info , $page ) ) {
-        my $ret = Vimana::AutoInstall->install( $target , $info , $page );
+    die 'can not download file' unless $file_content ;
+
+    open FH , ">" , $target or die 'can not create file handle';
+    print FH $file_content;
+    close FH;
+    print "Stored at: $target\n";
+
+
+    print "Check if we can install this package via port file\n";
+    # XXX:
+
+#    if( Vimana::PortInstall->has_portfile ) {
+#
+#    }
+
+    print "Check if this package contains Makefile\n";
+    # XXX:
+
+    print "Check if we can auto install this package\n";
+    if( Vimana::AutoInstall->can_autoinstall( $self , $target , $info , $page ) ) {
+        print "Auto install $target\n";
+        my $ret = Vimana::AutoInstall->install( 
+                    command => $self , 
+                    target => $target ,
+                    info => $info ,
+                    page => $page );
+
+        unless ( $ret ) {
+            print "Auto install failed\n";
+        }
     }
+
+    print "Done\n";
 }
 
 
