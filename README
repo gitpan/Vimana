@@ -1,7 +1,34 @@
 Vimana
 
-This module provide a command-line interface to search or download vim script
-from vim.org
+Vimana is an easy to use system for searching , installing, and downloading vim
+script.
+
+Vimana provides a command-line interface such like C<aptitude> programe on
+Debian linux, for you to search , download , install , upgrade scripts from
+L<http://www.vim.org> (vimonline site).
+
+Vimana can install a vim script package to your vim runtime path automatically
+by inspecting the content of archive file or vim script. for example , if an
+archive file contains 'syntax','plugin','indent' directory , then these files
+should be installed to F<~/.vim/> directory.   if it's a vim color scheme ,
+then it should be put into F<~/.vim/colors/> and prompt for setting the
+installed colorscheme as default.
+
+We plan to provide port files via git repository, vimrc customization and
+internationalization in future.
+
+( In some modern Indian languages, vimāna or vimān means "aircraft". )
+
+NOTE: Vimana only provides search,info,install commmands currently.
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
 
 USAGE
 
@@ -17,15 +44,6 @@ to install rails.vim package:
 
     $ vimana install rails.vim
 
-INSTALLATION
-
-To install this module, run the following commands:
-
-	perl Makefile.PL
-	make
-	make test
-	make install
-
 SUPPORT AND DOCUMENTATION
 
 After installing, you can find documentation for this module with the
@@ -36,16 +54,16 @@ perldoc command.
 You can also look for information at:
 
     RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Vim-Get
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Vimana
 
     AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Vim-Get
+        http://annocpan.org/dist/Vimana
 
     CPAN Ratings
-        http://cpanratings.perl.org/d/Vim-Get
+        http://cpanratings.perl.org/d/Vimana
 
     Search CPAN
-        http://search.cpan.org/dist/Vim-Get
+        http://search.cpan.org/dist/Vimana
 
 
 COPYRIGHT AND LICENCE

@@ -20,7 +20,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 0.03
+    version: 0.04
   Vimana::AutoInstall:
     file: lib/Vimana/AutoInstall.pm
   Vimana::Command:
@@ -35,6 +35,10 @@ provides:
     file: lib/Vimana/Command/Update.pm
   Vimana::Index:
     file: lib/Vimana/Index.pm
+  Vimana::Logger:
+    file: lib/Vimana/Logger.pm
+  Vimana::Logger::Compat:
+    file: lib/Vimana/Logger.pm
   Vimana::Util:
     file: lib/Vimana/Util.pm
   Vimana::VimOnline::ScriptPage:
@@ -58,7 +62,8 @@ requires:
   LWP::Simple: 0
   LWP::UserAgent: 0
   Test::More: 0
+  Text::Table: 0
   URI: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.03
+version: 0.04

@@ -2,30 +2,49 @@ package Vimana;
 
 use warnings;
 use strict;
-use LWP::UserAgent;
+use Vimana::Index;
 
 use vars qw($INDEX);
 
 =head1 NAME
 
-Vimana - vim script port manager
+Vimana - Vim script manager.
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
+Vimana is an easy to use system for searching , installing, and downloading vim
+script.
+
+Vimana provides a command-line interface such like C<aptitude> programe on
+Debian linux, for you to search , download , install , upgrade scripts from
+L<http://www.vim.org> (vimonline site).
+
+Vimana can install a vim script package to your vim runtime path automatically
+by inspecting the content of archive file or vim script. for example , if an
+archive file contains 'syntax','plugin','indent' directory , then these files
+should be installed to F<~/.vim/> directory.   if it's a vim color scheme ,
+then it should be put into F<~/.vim/colors/> and prompt for setting the
+installed colorscheme as default.
+
+We plan to provide port files via git repository, vimrc customization and
+internationalization in future.
+
+( In some modern Indian languages, vimāna or vimān means "aircraft". )
+
+NOTE: Vimana only provides search,info,install commmands currently.
 
 =head1 FUNCTIONS
 
 =cut
 
-use Vimana::Index;
 sub index {
     return $INDEX if $INDEX;
     $INDEX ||= Vimana::Index->new;
@@ -43,14 +62,14 @@ sub index {
 
 Cornelius ( You-An Lin ) C<< <cornelius at cpan.org> >>
 
-=head2 Git Repository 
+=head2 Vimana Git Repository 
 
 C<http://github.com/c9s/Vimana/tree/master>
 
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-vim-get at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Vim-Get>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Vimana>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 =head1 TODOS
@@ -70,19 +89,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Vim-Get>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Vimana>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Vim-Get>
+L<http://annocpan.org/dist/Vimana>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Vim-Get>
+L<http://cpanratings.perl.org/d/Vimana>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Vim-Get>
+L<http://search.cpan.org/dist/Vimana>
 
 =back
 
