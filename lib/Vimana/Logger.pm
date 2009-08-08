@@ -37,6 +37,29 @@ else {
     *get_logger = sub { 'Vimana::Logger::Compat' };
 }
 
+
+sub import {
+  my $class = shift;
+  my $var = shift || 'logger';
+  
+  # it's ok if people add a sigil; we can get rid of that.
+  $var =~ s/^\$*//;
+  
+  # Find out which package we'll export into.
+  my $caller = caller() . ''; 
+
+  (my $name = $caller) =~ s/::/./g;
+  my $logger = get_logger(lc($name));
+  {
+    # As long as we don't use a package variable, each module we export
+    # into will get their own object. Also, this allows us to decide on 
+    # the exported variable name. Hope it isn't too bad form...
+    no strict 'refs';
+    *{ $caller . "::$var" } = \$logger;
+  }
+}
+
+
 package Vimana::Logger::Compat;
 require Carp;
 

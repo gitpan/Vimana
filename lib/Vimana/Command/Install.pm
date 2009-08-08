@@ -1,13 +1,17 @@
-package Vimana::Command::Install;
 use warnings;
 use strict;
-use URI;
-require Vimana::VimOnline;
-use Vimana::AutoInstall;
-use Vimana::Logger;
+package Vimana::Command::Install;
 use base qw(App::CLI::Command);
+use URI;
 use LWP::Simple qw();
 use File::Temp qw(tempdir);
+use Moose;
+
+require Vimana::VimOnline;
+require Vimana::VimOnline::ScriptPage;
+use Vimana::AutoInstall;
+use Vimana::Logger;
+use Vimana::PackageFile;
 
 sub options {
     (
@@ -23,7 +27,7 @@ sub run {
     my $index = Vimana->index();
     my $info = $index->find_package( $package );
 
-    my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} ) ;
+    my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
 
     my $dir = '/tmp' || tempdir( DIR => '/tmp' );
 
@@ -31,43 +35,47 @@ sub run {
     my $filename = $page->{FILENAME};
     my $target = File::Spec->join( $dir , $filename );
 
-    print "Download from: $url\n";
-    my $file_content = LWP::Simple::get( $url );
+    $logger->info("Download from: $url");;
 
-    die 'can not download file' unless $file_content ;
+    my $pkgfile = Vimana::PackageFile->new(
+        file => $target,
+        url => $url,
+        info => $info ,
+        page_info => $page ,
+    );
 
-    open FH , ">" , $target or die 'can not create file handle';
-    print FH $file_content;
-    close FH;
-    print "Stored at: $target\n";
+    return unless $pkgfile->download();
+
+    $logger->info("Stored at: $target");
+
+    $pkgfile->detect_filetype();
+
+    if( $pkgfile->is_archive() ) {
+        $logger->info("Check if this package contains 'Makefile' file");
+
+        # list arhive file list
+        # find Makefile
+
+    }
+
+    $logger->info("Check if we can install this package via port file");
+
+    if( $pkgfile->has_portfile ) {
 
 
-    print "Check if we can install this package via port file\n";
-    # XXX:
+    }
 
-#    if( Vimana::PortInstall->has_portfile ) {
-#
-#    }
 
-    print "Check if this package contains Makefile\n";
-    # XXX:
-
-    print "Check if we can auto install this package\n";
-    if( Vimana::AutoInstall->can_autoinstall( $self , $target , $info , $page ) ) {
-        print "Auto install $target\n";
-        my $ret = Vimana::AutoInstall->install( 
-                    command => $self , 
-                    target => $target ,
-                    info => $info ,
-                    page => $page );
-
-        unless ( $ret ) {
-            print "Auto install failed\n";
-        }
+    $logger->info( "Check if we can auto install this package" );
+    my $ret = $pkgfile->auto_install( verbose => 1 );
+    unless ( $ret ) {
+        $logger->warn("Auto-install failed");
     }
 
     print "Done\n";
 }
+
+
 
 
 1;
