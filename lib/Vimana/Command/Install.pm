@@ -10,13 +10,18 @@ use Moose;
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
 use Vimana::AutoInstall;
+use Vimana::VimballInstall;
 use Vimana::Logger;
 use Vimana::PackageFile;
 
 sub options {
     (
-        'v|verbose'     => 'verbose',
-        'y|yes'         => 'assume_yes',
+        'd|dry-run'           => 'dry_run',
+        'v|verbose'           => 'verbose',
+        'y|yes'               => 'assume_yes',
+        'ai|auto-install'     => 'auto_install',
+        'pi|port-install'     => 'port_install',
+        'mi|makefile-install' => 'makefile_install',
     );
 }
 
@@ -55,29 +60,60 @@ sub run {
 
     $pkgfile->detect_filetype();
 
-    if( $pkgfile->is_archive() ) {
-        $logger->info("Check if this package contains 'Makefile' file");
+=pod
+    4. guess what to do
 
-        # list arhive file list
-        # find Makefile
+       if it's archive file:
+           * check directory structure
+           * others
 
-    }
+       if it's text file:
+           * inspect file content
+                - known format:
+                  * do install
+                - unknwon
+                   * check script_type 
+                 * for knwon script type , do install
+=cut
+DONE:
+    {
+        # if it's vimball, install it
+        if( $pkgfile->is_text() and $pkgfile->is_vimball() ) {
+            $logger->info("Found Vimball File");
+            my $install = Vimana::VimballInstall->new( package => $pkgfile );
+            $install->run();
+            last DONE;
+        }
 
-    $logger->info("Check if we can install this package via port file");
-    if( $pkgfile->has_portfile ) {
+        # or try to find in port tree
+        $logger->info("Check if we can install this package via port file");
+#        if( Vimana::PortTree->find( ) ) {
+#
+#
+#        }
+#        else {
+#            $logger->info( "Can not found port file." );
+#        }
 
 
-    }
-    else {
-        $logger->info( "Can not found port file." );
-    }
+        # unknown 
+        # look for makefile (archive)
+        if ( $pkgfile->is_archive() ) {
+            $logger->info("Check if this package contains 'Makefile' file");
+            if( $pkgfile->has_makefile() ) {
+                
+                $pkgfile->makefile_install();
+                last DONE if 0;
+            }
 
+        }
 
-    $logger->info( "Check if we can auto install this package" );
-    my $ret = $pkgfile->auto_install( verbose => $self->{verbose} );
-    unless ( $ret ) {
-        $logger->warn("Auto-install failed");
-        return 0;
+        $logger->info( "Check if we can auto install this package" );
+        my $ret = $pkgfile->auto_install( verbose => $self->{verbose} );
+        unless ( $ret ) {
+            $logger->warn("Auto-install failed");
+            return 0;
+        }
     }
 
 

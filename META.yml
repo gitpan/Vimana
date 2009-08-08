@@ -20,7 +20,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 0.066
+    version: 0.07
   Vimana::AutoInstall:
     file: lib/Vimana/AutoInstall.pm
   Vimana::Command:
@@ -41,6 +41,8 @@ provides:
     file: lib/Vimana/Logger.pm
   Vimana::PackageFile:
     file: lib/Vimana/PackageFile.pm
+  Vimana::PortInstall:
+    file: lib/Vimana/PortInstall.pm
   Vimana::Util:
     file: lib/Vimana/Util.pm
   Vimana::VimOnline:
@@ -51,6 +53,8 @@ provides:
     file: lib/Vimana/VimOnline/Search.pm
   Vimana::VimOnline::SearchResult:
     file: lib/Vimana/VimOnline.pm
+  Vimana::VimballInstall:
+    file: lib/Vimana/VimballInstall.pm
 requires:
   App::CLI: 0.08
   Archive::Any: 0
@@ -62,6 +66,7 @@ requires:
   File::Spec: 0
   File::Temp: 0
   File::Type: 0
+  File::Which: 0
   Getopt::Long: 0
   LWP::Simple: 0
   LWP::UserAgent: 0
@@ -71,4 +76,4 @@ requires:
   URI: 1.37
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.066
+version: 0.07

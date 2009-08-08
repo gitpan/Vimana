@@ -64,21 +64,22 @@ sub content {
     return $content;
 }
 
-sub has_portfile {
-    my $self = shift;
-
-}
-
 sub has_makefile {
     my $self = shift;
-
-
+    my @files = $self->archive->files();
+    @files = grep /makefile/i , @files;
+    return @files if scalar @files;
+    return undef;
 }
 
-# vimball
-sub vba_install {
-
+sub has_vimball {
+    my $self = shift;
+    my @files = $self->archive->files();
+    @files = grep /\.vba$/i , @files;
+    return @files if scalar @files;
+    return undef;
 }
+
 
 sub auto_install {
     my $self = shift;
@@ -87,6 +88,11 @@ sub auto_install {
     require Vimana::AutoInstall;
     my $auto = Vimana::AutoInstall->new( package => $self , options => \%args );
     return $auto->run();  # dry_run , verbose
+
+}
+
+
+sub makefile_install {
 
 }
 
