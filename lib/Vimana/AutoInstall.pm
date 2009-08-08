@@ -30,12 +30,8 @@ Vimna::AutoInstall
 =cut
 
 sub inspect_text_content {
-    my $file = shift;
-    local $/;
-    open my $fh , "<" , $file;
-    my $content = <$fh>;
-    close $fh;
-
+    my $self = shift;
+    my $content = $self->package->content;
     return 'colors' if $content =~ m/let\s+(g:)?colors_name\s*=/;
     return undef;
 }
@@ -79,12 +75,9 @@ sub install_to {
     my $file = $self->package->file;
     my $target = File::Spec->join( runtime_path(), $dir );
     my $ret = fcopy( $file => $target );
-    unless( $ret ) {
-        $logger->error( $! );
-    }
-    else {
-        $logger->info( "Installed" );
-    }
+    !$ret ? 
+        $logger->error( $! ) :
+        $logger->info("Installed");
     $ret;
 }
 
@@ -134,7 +127,11 @@ sub install_from_archive {
 
     $self->install_from_nodes( $nodes , runtime_path() );
 
+    $logger->info("Updating helptags");
     $self->update_vim_doc_tags();
+
+    $logger->info("Clean up temporary directory.");
+    rmtree [ $out ] if -e $out;
 
     return 1;
 }
@@ -209,7 +206,6 @@ sub find_runtime_node {
 
 
 sub update_vim_doc_tags {
-    $logger->info("Updating helptags");
     my $dir = File::Spec->join( runtime_path() , 'doc' );
     system(qq| vim -c ':helptags $dir'  -c q |);
 }

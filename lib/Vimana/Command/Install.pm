@@ -27,6 +27,11 @@ sub run {
     my $index = Vimana->index();
     my $info = $index->find_package( $package );
 
+    unless( $info ) {
+        $logger->error("Can not found package: $package");
+        return 0;
+    }
+
     my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
 
     my $dir = '/tmp' || tempdir( DIR => '/tmp' );
@@ -59,18 +64,22 @@ sub run {
     }
 
     $logger->info("Check if we can install this package via port file");
-
     if( $pkgfile->has_portfile ) {
 
 
     }
+    else {
+        $logger->info( "Can not found port file." );
+    }
 
 
     $logger->info( "Check if we can auto install this package" );
-    my $ret = $pkgfile->auto_install( verbose => 1 );
+    my $ret = $pkgfile->auto_install( verbose => $self->{verbose} );
     unless ( $ret ) {
         $logger->warn("Auto-install failed");
+        return 0;
     }
+
 
     print "Done\n";
 }
