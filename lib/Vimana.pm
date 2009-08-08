@@ -6,17 +6,19 @@ use Vimana::Index;
 
 use vars qw($INDEX);
 
+=encoding utf8
+
 =head1 NAME
 
 Vimana - Vim script manager.
 
 =head1 VERSION
 
-Version 0.07
+Version 0.071
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.071';
 
 =head1 DESCRIPTION
 
@@ -40,6 +42,8 @@ internationalization in future.
 ( In some modern Indian languages, vimāna or vimān means "aircraft". )
 
 NOTE: Vimana only provides search,info,install commmands currently.
+
+* Getting started from L<Vimana::Manual>.
 
 =head1 FUNCTIONS
 
@@ -112,7 +116,7 @@ L<http://search.cpan.org/dist/Vimana>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2007 You-An Lin ( Cornelius / c9s ), all rights reserved.
+Copyright 2007 You-An Lin 林佑安 ( Cornelius / c9s ), all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

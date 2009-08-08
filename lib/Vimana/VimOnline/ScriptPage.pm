@@ -4,6 +4,7 @@ use strict;
 use URI;
 use LWP::Simple qw();
 use HTML::Entities;
+use utf8;
 # use Lingua::ZH::Wrap qw(wrap $columns $overflow);
 use Text::Wrap qw(wrap $columns $huge);
 
@@ -68,7 +69,11 @@ INFO
     
 }
 
-# it's very dirty
+#
+# vimonline website sucks , i can't found any elemetn class or to scraper by
+# Web::Scraper.
+#
+# so.. it's very dirty
 sub parse {
     my ( $class , $content ) = @_;
 
