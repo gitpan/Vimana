@@ -20,7 +20,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 0.073
+    version: 0.074
   Vimana::AutoInstall:
     file: lib/Vimana/AutoInstall.pm
   Vimana::Command:
@@ -35,6 +35,8 @@ provides:
     file: lib/Vimana/Command/Search.pm
   Vimana::Command::Update:
     file: lib/Vimana/Command/Update.pm
+  Vimana::Command::Upgrade:
+    file: lib/Vimana/Command/Upgrade.pm
   Vimana::Index:
     file: lib/Vimana/Index.pm
   Vimana::Logger:
@@ -78,4 +80,4 @@ requires:
   URI: 1.37
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.073
+version: 0.074
