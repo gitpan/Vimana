@@ -4,7 +4,6 @@ package Vimana::Command::Download;
 use base qw(App::CLI::Command);
 use URI;
 use LWP::Simple qw();
-use Moose;
 
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
@@ -38,12 +37,12 @@ sub run {
 
     $logger->info("Download from: $url");;
 
-    my $pkgfile = Vimana::PackageFile->new(
+    my $pkgfile = Vimana::PackageFile->new( {
         file      => $filename,
         url       => $url,
         info      => $info,
         page_info => $page,
-    );
+    } );
 
     return unless $pkgfile->download();
     $logger->info("Stored at: $filename");

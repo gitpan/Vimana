@@ -1,21 +1,10 @@
 package Vimana::PackageFile;
 use warnings;
 use strict;
-use Moose;
 use Vimana::Logger;
 use LWP::Simple qw();
-
-has file => ( is => 'rw', isa => 'Str' );
-
-has url => ( is => 'rw', isa => 'Str' );
-
-has filetype => ( is => 'rw', isa => 'Str' );
-
-has info => ( is => 'rw', isa => 'HashRef' );
-
-has page_info => ( is => 'rw' , isa => 'HashRef' );
-
-has archive => ( is => 'rw' , isa => 'Archive::Any' );
+use base qw/Class::Accessor::Fast/;
+__PACKAGE__->mk_accessors( qw(file url filetype info page_fino archive) );
 
 sub is_archive { $_[ 0 ]->filetype =~ m{(x-bzip2|x-gzip|x-gtar|zip|rar|tar)} ? 1 : 0; }
 
@@ -86,7 +75,7 @@ sub auto_install {
     my %args = @_;
 
     require Vimana::AutoInstall;
-    my $auto = Vimana::AutoInstall->new( package => $self , options => \%args );
+    my $auto = Vimana::AutoInstall->new( { package => $self , options => \%args } );
     return $auto->run();  # dry_run , verbose
 
 }

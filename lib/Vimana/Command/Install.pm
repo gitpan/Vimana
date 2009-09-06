@@ -5,7 +5,6 @@ use base qw(App::CLI::Command);
 use URI;
 use LWP::Simple qw();
 use File::Temp qw(tempdir);
-use Moose;
 
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
@@ -47,12 +46,12 @@ sub run {
 
     $logger->info("Download from: $url");;
 
-    my $pkgfile = Vimana::PackageFile->new(
+    my $pkgfile = Vimana::PackageFile->new( {
         file => $target,
         url => $url,
         info => $info ,
         page_info => $page ,
-    );
+    } );
 
     return unless $pkgfile->download();
 
@@ -80,7 +79,7 @@ DONE:
         # if it's vimball, install it
         if( $pkgfile->is_text() and $pkgfile->is_vimball() ) {
             $logger->info("Found Vimball File");
-            my $install = Vimana::VimballInstall->new( package => $pkgfile );
+            my $install = Vimana::VimballInstall->new({ package => $pkgfile });
             $install->run();
             last DONE;
         }
