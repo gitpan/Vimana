@@ -14,11 +14,11 @@ Vimana - Vim script manager.
 
 =head1 VERSION
 
-Version 0.082
+Version 0.083
 
 =cut
 
-our $VERSION = '0.082';
+our $VERSION = '0.083';
 
 =head1 DESCRIPTION
 
@@ -70,6 +70,10 @@ sub index {
     $INDEX ||= Vimana::Index->new;
     $INDEX->init();
     return $INDEX;
+}
+
+sub tmpdir {
+    return  "/tmp/vimana-" . join '',map { [ 'a' .. 'z' ]->[ int rand(26) ] }  1 .. 6;
 }
 
 
