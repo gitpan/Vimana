@@ -12,6 +12,7 @@ use File::Type;
 use File::Temp qw(tempdir);
 use Vimana::Logger;
 use Vimana::Util;
+use DateTime;
 use base qw/Class::Accessor::Fast/;
 __PACKAGE__->mk_accessors( qw(package options) );
 
@@ -22,7 +23,7 @@ $| = 1;
 
 =head1 NAME
 
-Vimna::AutoInstall
+Vimana::AutoInstall
 
 =head1 DESCRIPTION
 
@@ -74,6 +75,7 @@ sub run {
 
         return 0;
     }
+
 }
 
 =head2 install_to 

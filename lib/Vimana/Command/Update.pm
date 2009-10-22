@@ -4,6 +4,7 @@ use strict;
 
 use URI;
 use base qw(App::CLI::Command);
+use Vimana::Logger;
 
 sub options {
     (
@@ -25,16 +26,16 @@ sub fetch_index {
     );
 }
 
+
 sub run {
     my ($self, @args ) = @_;
-
-    print "Updating....\n";
+    $logger->info("Fetching...");
     my $results = fetch_index();
-    my $cnt = scalar keys %$results;
-    print "Index updated: $cnt items.\n";
 
     my $index = Vimana->index();
     $index->update( $results );
+
+    # XXX: check installed packages , calcuate outdated items
 }
 
 

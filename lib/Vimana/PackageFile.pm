@@ -4,7 +4,36 @@ use strict;
 use Vimana::Logger;
 use LWP::Simple qw();
 use base qw/Class::Accessor::Fast/;
-__PACKAGE__->mk_accessors( qw(file url filetype info page_fino archive) );
+__PACKAGE__->mk_accessors( qw(
+    cname
+    file 
+    url 
+    filetype 
+    info 
+    page_fino 
+    archive
+) );
+
+
+=head1 FUNCTIONS
+
+=head2 is_archive
+
+=head2 is_text
+
+=head2 is_vimball
+
+=head2 script_type
+
+=head2 script_is
+
+=head2 download
+
+=head2 preprocess
+
+=head2 postprocess
+
+=cut
 
 sub is_archive { $_[ 0 ]->filetype =~ m{(x-bzip2|x-gzip|x-gtar|zip|rar|tar)} ? 1 : 0; }
 
@@ -25,11 +54,26 @@ sub download {
         return 0;
     }
 
-    open FH , ">" , $self->file or die 'Can not create file handle';
+    open FH , ">" , $self->file or die $@;
     print FH $file_content;
     close FH;
 
     return 1;
+}
+
+
+sub preprocess {
+    my $self = shift;
+    if( $self->is_archive ) {
+        $self->archive( Archive::Any->new( $self->file ) );
+        die "Can not read archive file: @{[ $self->file ]}" unless $self->archive;
+    }
+}
+
+# XXX: DESTROY
+sub postprocess {
+
+
 }
 
 sub detect_filetype { 
@@ -38,10 +82,12 @@ sub detect_filetype {
         Vimana::Util::get_mine_type( $self->file )
     );
 
-    if( $self->is_archive ) {
-        $self->archive( Archive::Any->new( $self->file ) );
-        die unless $self->archive;
-    }
+}
+
+sub archive_files {
+    my $self = shift;
+    my @files = $self->archive->files;
+    return \@files;
 }
 
 sub content {
@@ -69,6 +115,10 @@ sub has_vimball {
     return undef;
 }
 
+sub set_record {
+    my ( $self , $package , $pkgfiles ) =  @_;
+    # Vimana::Record->set_record(  cname => $package , files => [ $pkgfiles ]  );
+}
 
 sub auto_install {
     my $self = shift;

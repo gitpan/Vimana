@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Vimana::Index;
 
-use vars qw($INDEX);
+use vars qw($INDEX $CACHE);
 
 =encoding utf8
 
@@ -14,11 +14,11 @@ Vimana - Vim script manager.
 
 =head1 VERSION
 
-Version 0.075
+Version 0.08
 
 =cut
 
-our $VERSION = '0.075';
+our $VERSION = '0.08';
 
 =head1 DESCRIPTION
 
@@ -47,6 +47,20 @@ NOTE: Vimana only provides search,info,install commmands currently.
 
 =head1 FUNCTIONS
 
+=head2 cache
+
+=cut
+
+sub cache {
+    return $CACHE if $CACHE;
+    my $cache = Cache::File->new(
+        cache_root      => $ENV{VIMANA_CACHE_DIR} || '/tmp/vim.get',
+        lock_level      => Cache::File::LOCK_LOCAL(),
+        default_expires => '3 hours'
+    );
+    return $CACHE = $cache;
+}
+
 =head2 index
 
 =cut
@@ -55,11 +69,6 @@ sub index {
     return $INDEX if $INDEX;
     $INDEX ||= Vimana::Index->new;
     $INDEX->init();
-    unless ( $INDEX->get() ) {
-        require Vimana::Command::Update;
-        my $index = Vimana::Command::Update->fetch_index();
-        $INDEX->update( $index );
-    }
     return $INDEX;
 }
 

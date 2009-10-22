@@ -26,10 +26,9 @@ sub options {
 
 
 sub run {
-    my ( $self, $package ) = @_;
+    my ( $self, $package ) = @_;  # $package is a canonicalized name
 
-    my $index = Vimana->index();
-    my $info = $index->find_package( $package );
+    my $info = Vimana->index->find_package( $package );
 
     unless( $info ) {
         $logger->error("Can not found package: $package");
@@ -47,10 +46,11 @@ sub run {
     $logger->info("Download from: $url");;
 
     my $pkgfile = Vimana::PackageFile->new( {
-        file => $target,
-        url => $url,
-        info => $info ,
-        page_info => $page ,
+            cname      => $package,
+            file      => $target,
+            url       => $url,
+            info      => $info,
+            page_info => $page,
     } );
 
     return unless $pkgfile->download();
@@ -58,6 +58,7 @@ sub run {
     $logger->info("Stored at: $target");
 
     $pkgfile->detect_filetype();
+    $pkgfile->preprocess( );
 
 =pod
     4. guess what to do
@@ -86,6 +87,7 @@ DONE:
 
         # or try to find in port tree
         $logger->info("Check if we can install this package via port file");
+
 #        if( Vimana::PortTree->find( ) ) {
 #
 #
@@ -102,7 +104,7 @@ DONE:
             if( $pkgfile->has_makefile() ) {
                 
                 $pkgfile->makefile_install();
-                last DONE if 0;
+                last DONE if 0;  # XXX:
             }
 
         }

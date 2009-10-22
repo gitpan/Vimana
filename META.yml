@@ -2,8 +2,12 @@
 abstract: 'Vim script port manager'
 author:
   - 'You-An Lin <cornelius.howl@gmail.com>'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.80'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,7 +20,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 0.075
+    version: 0.08
   Vimana::AutoInstall:
     file: lib/Vimana/AutoInstall.pm
   Vimana::Command:
@@ -51,8 +55,6 @@ provides:
     file: lib/Vimana/VimOnline/ScriptPage.pm
   Vimana::VimOnline::Search:
     file: lib/Vimana/VimOnline/Search.pm
-  Vimana::VimOnline::SearchResult:
-    file: lib/Vimana/VimOnline.pm
   Vimana::VimballInstall:
     file: lib/Vimana/VimballInstall.pm
 requires:
@@ -70,9 +72,8 @@ requires:
   Getopt::Long: 0
   LWP::Simple: 0
   LWP::UserAgent: 0
-  Storable: 0
   Test::More: 0
   URI: 1.37
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.075
+version: 0.08

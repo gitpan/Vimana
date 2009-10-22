@@ -19,14 +19,12 @@ requires
     'File::Path'            => 2.07,
     'File::Spec'            => 0,
     'File::Temp'            => 0,
-    'Storable'              => 0,
     'Getopt::Long'          => 0,
     'LWP::UserAgent'        => 0,
     'LWP::Simple'           => 0,
     'URI'                   => 1.37,
     'Exporter::Lite'        => 0,
-    'File::Which' => 0;
-#    'Moose' => 0;
+    'File::Which'           => 0;
 
 include('ExtUtils::AutoInstall');
 auto_install();
