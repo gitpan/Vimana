@@ -7,6 +7,7 @@ use LWP::Simple qw();
 
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
+use Vimana::Record;
 use Vimana::AutoInstall;
 use Vimana::VimballInstall;
 use Vimana::Logger;
@@ -23,7 +24,6 @@ sub options {
     );
 }
 
-
 sub run {
     my ( $self, $package ) = @_;  # $package is a canonicalized name
 
@@ -36,7 +36,7 @@ sub run {
 
     my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
 
-    my $dir = '/tmp' || Vimana::tmpdir();
+    my $dir = '/tmp' || Vimana::Util::tempdir();
 
     my $url = $page->{download};
     my $filename = $page->{filename};
@@ -63,8 +63,10 @@ sub run {
     4. guess what to do
 
        if it's archive file:
-           * check directory structure
-           * others
+        * have makefile ?
+        * have portfile ?
+        * check directory structure
+        * others
 
        if it's text file:
            * inspect file content
@@ -88,8 +90,6 @@ DONE:
         $logger->info("Check if we can install this package via port file");
 
 #        if( Vimana::PortTree->find( ) ) {
-#
-#
 #        }
 #        else {
 #            $logger->info( "Can not found port file." );
@@ -101,7 +101,6 @@ DONE:
         if ( $pkgfile->is_archive() ) {
             $logger->info("Check if this package contains 'Makefile' file");
             if( $pkgfile->has_makefile() ) {
-                
                 $pkgfile->makefile_install();
                 last DONE if 0;  # XXX:
             }
@@ -113,6 +112,16 @@ DONE:
         unless ( $ret ) {
             $logger->warn("Auto-install failed");
             return 0;
+        }
+
+        if( $pkgfile->is_archive() ) {
+            my $files = $pkgfile->archive_files();
+            Vimana::Record->add( {
+                cname => $pkgfile->cname,
+                url  => $pkgfile->url,
+                filetype => $pkgfile->filetype,
+                files => $files,
+            });
         }
     }
 
