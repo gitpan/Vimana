@@ -9,6 +9,8 @@ license 'perl';
 version_from 'lib/Vimana.pm';
 install_script 'bin/vimana';
 requires
+    'YAML' => 0,
+    'DateTime' => 0,
     'Test::More'            => 0,
     'App::CLI'              => 0.08,
     'File::Type'            => 0,
@@ -22,8 +24,7 @@ requires
     'LWP::UserAgent'        => 0,
     'LWP::Simple'           => 0,
     'URI'                   => 1.37,
-    'Exporter::Lite'        => 0,
-    'File::Which'           => 0;
+    'Exporter::Lite'        => 0;
 
 include('ExtUtils::AutoInstall');
 auto_install();

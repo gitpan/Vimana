@@ -27,6 +27,11 @@ sub options {
 sub run {
     my ( $self, $package ) = @_;  # $package is a canonicalized name
 
+    # XXX: check if we've installed this package
+
+
+    # XXX: check if package files conflict
+
     my $info = Vimana->index->find_package( $package );
 
     unless( $info ) {
@@ -116,12 +121,12 @@ DONE:
 
         if( $pkgfile->is_archive() ) {
             my $files = $pkgfile->archive_files();
-            Vimana::Record->add( {
-                cname => $pkgfile->cname,
-                url  => $pkgfile->url,
-                filetype => $pkgfile->filetype,
-                files => $files,
-            });
+            # Vimana::Record->add( {
+            #     cname => $pkgfile->cname,
+            #     url  => $pkgfile->url,
+            #     filetype => $pkgfile->filetype,
+            #     files => $files,
+            # });
         }
     }
 
