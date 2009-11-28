@@ -24,11 +24,82 @@ sub options {
     );
 }
 
+
+use Vimana::Installer::Meta;
+use Vimana::Installer::Makefile;
+use Vimana::Installer::Auto;
+
+# XXX: mv this method into Vimana::Installer , maybe
+sub get_installer {
+    my ( $self, $type, @args ) = @_;
+    $type = ucfirst( $type );
+    my $class = qq{Vimana::Installer::$type};
+    return $class->new(@args);
+}
+
+
+sub install_text_type_ {
+    my ($self, $pkgfile) = @_;
+
+    if( $pkgfile->is_vimball ) {
+        $logger->info("Found Vimball File");
+        my $install = Vimana::VimballInstall->new({ package => $pkgfile });
+        $install->run();
+        return 1;
+    }
+
+    # guess text filetype here.  (colorscheme, ftplugin ...etc)
+
+    return 0;
+}
+
+sub install_archive_type {
+    my ($self, $pkgfile) = @_;
+    my $files = $pkgfile->archive_files();
+
+    my $ret;
+    # find meta file
+    $logger->info("Check 'META' or 'VIMMETA' file for VIM::Packager.");
+    if( $pkgfile->has_metafile ) {
+        # ensure that we have VIM::Packager installed.
+
+        # $ret = $self->metafile_install( $pkgfile );
+
+
+        return $ret if $ret;
+    }
+
+    # find Makefile
+    $logger->info("Check Makefile.");
+    if( $pkgfile->has_makefile() ) {
+        $ret = $pkgfile->makefile_install(); # XXX: mv this method out
+
+        return $ret if $ret;
+    }
+
+    $logger->info( "Check detect directory structure." );
+    $ret = $pkgfile->auto_install( verbose => $self->{verbose} );
+    return $ret if $ret;
+
+    $logger->warn("Install failed");
+    $logger->warn("Reason: package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file");
+    $logger->warn("Vimana does not know how to install this package");
+    return 0;
+
+    # add record:
+    # Vimana::Record->add( {
+    #     cname => $pkgfile->cname,
+    #     url  => $pkgfile->url,
+    #     filetype => $pkgfile->filetype,
+    #     files => $files,
+    # });
+}
+
+
 sub run {
     my ( $self, $package ) = @_;  # $package is a canonicalized name
 
     # XXX: check if we've installed this package
-
 
     # XXX: check if package files conflict
 
@@ -65,71 +136,38 @@ sub run {
     $pkgfile->preprocess( );
 
 =pod
+
     4. guess what to do
 
        if it's archive file:
+        * have vim meta file ?
         * have makefile ?
-        * have portfile ?
         * check directory structure
         * others
 
        if it's text file:
-           * inspect file content
-                - known format:
-                  * do install
-                - unknwon
-                   * check script_type 
-                 * for knwon script type , do install
+        * vimball
+        * dont know ?
+           * check script_type 
+           * inspect text content
+            - known format:
+            * do install
 =cut
-DONE:
-    {
-        # if it's vimball, install it
-        if( $pkgfile->is_text() and $pkgfile->is_vimball() ) {
-            $logger->info("Found Vimball File");
-            my $install = Vimana::VimballInstall->new({ package => $pkgfile });
-            $install->run();
-            last DONE;
-        }
 
-        # or try to find in port tree
-        $logger->info("Check if we can install this package via port file");
+    # if it's vimball, install it
+    my $ret;
+    if( $pkgfile->is_text ) {
+        $ret = $self->install_text_type( $pkgfile );
 
-#        if( Vimana::PortTree->find( ) ) {
-#        }
-#        else {
-#            $logger->info( "Can not found port file." );
-#        }
-
-
-        # unknown 
-        # look for makefile (archive)
-        if ( $pkgfile->is_archive() ) {
-            $logger->info("Check if this package contains 'Makefile' file");
-            if( $pkgfile->has_makefile() ) {
-                $pkgfile->makefile_install();
-                last DONE if 0;  # XXX:
-            }
-
-        }
-
-        $logger->info( "Check if we can auto install this package" );
-        my $ret = $pkgfile->auto_install( verbose => $self->{verbose} );
-        unless ( $ret ) {
-            $logger->warn("Auto-install failed");
-            return 0;
-        }
-
-        if( $pkgfile->is_archive() ) {
-            my $files = $pkgfile->archive_files();
-            # Vimana::Record->add( {
-            #     cname => $pkgfile->cname,
-            #     url  => $pkgfile->url,
-            #     filetype => $pkgfile->filetype,
-            #     files => $files,
-            # });
-        }
+    }
+    elsif( $pkgfile->is_archive ) {
+        $ret = $self->install_archive_type( $pkgfile );
     }
 
+    unless( $ret ) {
+        print "FAIL\n";
+        exit 1;
+    }
 
     print "Done\n";
 }

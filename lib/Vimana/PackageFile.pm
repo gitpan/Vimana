@@ -2,15 +2,17 @@ package Vimana::PackageFile;
 use warnings;
 use strict;
 use Vimana::Logger;
+use Vimana::Util;
+use Archive::Any;
 use LWP::Simple qw();
-use base qw/Class::Accessor::Fast/;
+use base qw(Vimana::Accessor);
 __PACKAGE__->mk_accessors( qw(
     cname
     file 
     url 
     filetype 
     info 
-    page_fino 
+    page_info 
     archive
 ) );
 
@@ -67,16 +69,17 @@ sub download {
 
 sub preprocess {
     my $self = shift;
-    if( $self->is_archive ) {
+    $self->detect_filetype unless $self->filetype;
+    if( $self->filetype and $self->is_archive ) {
         $self->archive( Archive::Any->new( $self->file ) );
         die "Can not read archive file: @{[ $self->file ]}" unless $self->archive;
     }
 }
 
-# XXX: DESTROY
-sub postprocess {
-
-
+sub DESTROY {
+    my $self = shift;
+    # clean up myself
+    # unlink $self->file if $self->file;
 }
 
 sub detect_filetype { 
@@ -89,8 +92,8 @@ sub detect_filetype {
 
 sub archive_files {
     my $self = shift;
-    my @files = $self->archive->files;
-    return \@files;
+    $self->{_archive_files} ||= [ $self->archive->files ];
+    return $self->{_archive_files} if $self->{_archive_files};
 }
 
 sub content {
@@ -102,10 +105,16 @@ sub content {
     return $content;
 }
 
+sub has_metafile {
+    my $self = shift;
+    my @files = grep /makefile/i , $self->archive->files();
+    return @files if scalar @files;
+    return undef;
+}
+
 sub has_makefile {
     my $self = shift;
-    my @files = $self->archive->files();
-    @files = grep /makefile/i , @files;
+    my @files = grep /makefile/i , $self->archive->files();
     return @files if scalar @files;
     return undef;
 }
