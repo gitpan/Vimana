@@ -15,7 +15,6 @@ use DateTime;
 use base qw(Vimana::Accessor);
 __PACKAGE__->mk_accessors( qw(package options) );
 
-
 $| = 1;
 
 =encoding utf8
@@ -33,7 +32,10 @@ Vimana::AutoInstall
 sub inspect_text_content {
     my $self = shift;
     my $content = $self->package->content;
-    return 'colors' if $content =~ m/let\s+(g:)?colors_name\s*=/;
+    return 'colors'   if $content =~ m/^let\s+(g:)?colors_name\s*=/;
+    return 'syntax'   if $content =~ m/^syn[tax]* (?:match|region|keyword)/;
+    return 'compiler' if $content =~ m/^let\s+current_compiler\s*=/;
+    return 'indent'   if $content =~ m/^let\s+b:did_indent/;
     return undef;
 }
 
@@ -98,7 +100,7 @@ sub find_vimball_files {
     my @vimballs;
     File::Find::find(  sub {
             return unless -f $_;
-            push @vimballs , $_ if /\.vba$/;
+            push @vimballs , File::Spec->join($File::Find::dir , $_ ) if /\.vba$/;
         } , $out );
     return @vimballs;
 }
