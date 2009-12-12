@@ -72,7 +72,6 @@ provides:
 requires:
   App::CLI: 0.08
   Archive::Any: 0
-  Cache::File: 2.04
   DateTime: 0
   Exporter::Lite: 0
   File::Copy::Recursive: 0.38
@@ -87,4 +86,4 @@ requires:
   YAML: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 2009.34614
+version: 2009.34614-2
