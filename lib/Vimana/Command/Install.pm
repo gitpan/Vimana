@@ -24,10 +24,10 @@ sub options {
     );
 }
 
-
 use Vimana::Installer::Meta;
 use Vimana::Installer::Makefile;
 use Vimana::Installer::Auto;
+use Vimana::Installer::Text;
 
 # XXX: mv this method into Vimana::Installer , maybe
 sub get_installer {
@@ -35,37 +35,6 @@ sub get_installer {
     $type = ucfirst( $type );
     my $class = qq{Vimana::Installer::$type};
     return $class->new(@args);
-}
-
-
-
-
-sub install_text_type {
-    my ($self, $pkgfile) = @_;
-
-    if( $pkgfile->is_vimball ) {
-        $logger->info("Found Vimball File");
-        my $install = Vimana::VimballInstall->new({ package => $pkgfile });
-        $install->run();
-        return 1;
-    }
-
-    # known types (depends on the information that vim.org provides.
-    return $pkgfile->install_to( 'colors' )
-        if $pkgfile->script_is('color scheme');
-
-    return $pkgfile->install_to( 'syntax' )
-        if $pkgfile->script_is('syntax');
-
-    return $pkgfile->install_to( 'indent' )
-        if $pkgfile->script_is('indent');
-
-    return $pkgfile->install_to( 'ftplugin' )
-        if $pkgfile->script_is('ftplugin');
-
-    # guess text filetype here.  (colorscheme, ftplugin ...etc)
-
-    return 0;
 }
 
 sub install_archive_type {
@@ -133,7 +102,7 @@ sub run {
     my $filename = $page->{filename};
     my $target = File::Spec->join( $dir , $filename );
 
-    $logger->info("Download from: $url");;
+    $logger->info("Downloading from: $url");;
 
     my $pkgfile = Vimana::PackageFile->new( {
             cname      => $package,
@@ -150,41 +119,23 @@ sub run {
     $pkgfile->detect_filetype();
     $pkgfile->preprocess( );
 
-=pod
-
-    4. guess what to do
-
-       if it's archive file:
-        * have vim meta file ?
-        * have makefile ?
-        * check directory structure
-        * others
-
-       if it's text file:
-        * vimball
-        * dont know ?
-           * check script_type 
-           * inspect text content
-            - known format:
-            * do install
-=cut
 
     # if it's vimball, install it
     my $ret;
     if( $pkgfile->is_text ) {
-        $ret = $self->install_text_type( $pkgfile );
-
+        my $installer = $self->get_installer('text');
+        $ret = $installer->run( $pkgfile );
     }
     elsif( $pkgfile->is_archive ) {
         $ret = $self->install_archive_type( $pkgfile );
     }
 
     unless( $ret ) {
-        print "FAIL\n";
+        print "Installation Failed.\n";
         exit 1;
     }
 
-    print "Done\n";
+    print "Installation Done.\n";
 }
 
 

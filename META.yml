@@ -20,7 +20,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2009.34611
+    version: 2009.34614
   Vimana::Accessor:
     file: lib/Vimana/Accessor.pm
   Vimana::AutoInstall:
@@ -87,4 +87,4 @@ requires:
   YAML: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 2009.34611
+version: 2009.34614
