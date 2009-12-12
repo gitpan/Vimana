@@ -133,9 +133,28 @@ sub auto_install {
 
     require Vimana::AutoInstall;
     my $auto = Vimana::AutoInstall->new( { package => $self , options => \%args } );
-    return $auto->run();  # dry_run , verbose
+    return $auto->run();  # XXX: dry_run , verbose
 
 }
+
+use File::Spec;
+use File::Path;
+use File::Copy;
+
+sub install_to {
+    my ( $self , $dir ) = @_;
+    my $file = $self->file;
+    my $target = File::Spec->join( runtime_path(), $dir );
+    File::Path::mkpath [ runtime_path() ];
+
+    $logger->info( "Install $file to $target" );
+    my $ret = File::Copy::copy( $file => $target );
+    $ret 
+        ?  $logger->info("Installed")
+        :  $logger->error( $! ) ;
+    $ret;
+}
+
 
 
 sub makefile_install {
