@@ -110,10 +110,19 @@ sub content {
 
 sub has_metafile {
     my $self = shift;
-    my @files = grep /makefile/i , $self->archive->files();
+    my @files = grep /(?:meta|vimmeta|vimmeta.yml)/i , $self->archive->files();
     return @files if scalar @files;
     return undef;
 }
+
+
+sub has_rakefile {
+    my $self = shift;
+    my @files = grep /rakefile/i , $self->archive->files();
+    return @files if scalar @files;
+    return undef;
+}
+
 
 sub has_makefile {
     my $self = shift;
@@ -128,16 +137,6 @@ sub has_vimball {
     @files = grep /\.vba$/i , @files;
     return @files if scalar @files;
     return undef;
-}
-
-sub auto_install {
-    my $self = shift;
-    my %args = @_;
-
-    require Vimana::AutoInstall;
-    my $auto = Vimana::AutoInstall->new( { package => $self , options => \%args } );
-    return $auto->run();  # XXX: dry_run , verbose
-
 }
 
 =head2 $pkgfile->copy_to( '/path/to/file' )
@@ -171,8 +170,18 @@ sub copy_to_rtp {
     return $self->copy_to($target);
 }
 
-sub makefile_install {
 
+use Vimana::Util;
+
+sub extract_to {
+    my ( $self, $path ) = @_;
+    # my $path ||= Vimana::Util::tempdir();
+    rmtree [ $path ] if -e $path;
+    mkpath [ $path ];
+    $logger->info("Temporary directory created: $path");
+    $logger->info("Extracting to: $path");
+    return $self->archive->extract($path);
 }
+
 
 1;

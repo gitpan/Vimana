@@ -20,11 +20,9 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2009.34614
+    version: 2009.34802
   Vimana::Accessor:
     file: lib/Vimana/Accessor.pm
-  Vimana::AutoInstall:
-    file: lib/Vimana/AutoInstall.pm
   Vimana::Command:
     file: lib/Vimana/Command.pm
   Vimana::Command::Download:
@@ -45,12 +43,18 @@ provides:
     file: lib/Vimana/GitInstall.pm
   Vimana::Index:
     file: lib/Vimana/Index.pm
+  Vimana::Installer:
+    file: lib/Vimana/Installer.pm
   Vimana::Installer::Auto:
     file: lib/Vimana/Installer/Auto.pm
   Vimana::Installer::Makefile:
     file: lib/Vimana/Installer/Makefile.pm
   Vimana::Installer::Meta:
     file: lib/Vimana/Installer/Meta.pm
+  Vimana::Installer::Rakefile:
+    file: lib/Vimana/Installer/Rakefile.pm
+  Vimana::Installer::Text:
+    file: lib/Vimana/Installer/Text.pm
   Vimana::Logger:
     file: lib/Vimana/Logger.pm
   Vimana::Logger::Compat:
@@ -86,4 +90,4 @@ requires:
   YAML: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 2009.34614-2
+version: 2009.34802

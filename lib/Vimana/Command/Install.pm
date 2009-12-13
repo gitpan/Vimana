@@ -32,43 +32,93 @@ use Vimana::Installer::Text;
 # XXX: mv this method into Vimana::Installer , maybe
 sub get_installer {
     my ( $self, $type, @args ) = @_;
-    $type = ucfirst( $type );
+    $type = ucfirst($type);
     my $class = qq{Vimana::Installer::$type};
-    return $class->new(@args);
+    return $class->new( @args );
+}
+
+
+sub check_strategies {
+    my $self = shift;
+    my $pkg = shift;
+    my @sts = @_;
+    my @ins_type;
+    for my $st ( @sts ) {
+        print $st->{name} . ' : ' . $st->{desc} . ' ...';
+        my $method = $st->{method};
+        if( $pkg->$method ) {
+            print " [ found ]\n" ;
+            push @ins_type , $st->{installer};
+        }
+        else {
+            print " [ not found ]\n";
+        }
+    }
+    return @ins_type;
 }
 
 sub install_archive_type {
     my ($self, $pkgfile) = @_;
+
+    # extract to a path 
+    my $tmpdir = Vimana::Util::tempdir();
+
+    $logger->info( "Extracting to $tmpdir." );
+    $pkgfile->extract_to( $tmpdir );
+
+    # chdir
+    $logger->info("Changing directory to $tmpdir.");
+    chdir $tmpdir;
+
     my $files = $pkgfile->archive_files();
 
     my $ret;
-    # find meta file
-    $logger->info("Check 'META' or 'VIMMETA' file for VIM::Packager.");
-    if( $pkgfile->has_metafile ) {
-        # ensure that we have VIM::Packager installed.
+    my @ins_type = $self->check_strategies( $pkgfile ,
+        {
+            name => 'Meta',
+            desc => q{Check if 'META' or 'VIMMETA' file exists. support for VIM::Packager.},
+            installer => 'meta',
+            method => 'has_metafile',
+        },
+        {
+            name => 'Makefile',
+            desc => q{Check if makefile exists.},
+            installer => 'Makefile',
+            method => 'has_makefile',
+        },
+        {
+            name => 'Rakefile',
+            desc => q{Check if rakefile exists.},
+            installer => 'Rakefile',
+            method => 'has_rakefile',
+        },
+    );
 
-        # $ret = $self->metafile_install( $pkgfile );
+    if( @ins_type == 0 ) {
+        $logger->warn( "Package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file" );
+        $logger->info( "No availiable strategy, try to auto-install." );
+        push @ins_type,'auto';
+    }
+    
 
+DONE:
+    for my $ins_type ( @ins_type ) {
+        my $installer = $self->get_installer( $ins_type , { package => $pkgfile } );
+        $ret = $installer->run( $tmpdir );
 
-        return $ret if $ret;
+        last DONE if $ret;  # succeed
+        last DONE if ! $installer->_continue;  # not succeed, but we should continue other installation.
     }
 
-    # find Makefile
-    $logger->info("Check Makefile.");
-    if( $pkgfile->has_makefile() ) {
-        $ret = $pkgfile->makefile_install(); # XXX: mv this method out
+    unless( $ret ) {
+        $logger->warn("Installation failed.");
 
-        return $ret if $ret;
+        $logger->warn("Vimana does not know how to install this package");
+        return $ret;
     }
 
-    $logger->info( "Check detect directory structure." );
-    $ret = $pkgfile->auto_install( verbose => $self->{verbose} );
-    return $ret if $ret;
-
-    $logger->warn("Install failed");
-    $logger->warn("Reason: package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file");
-    $logger->warn("Vimana does not know how to install this package");
-    return 0;
+    $logger->info( "Succeed." );
+    return $ret;
 
     # add record:
     # Vimana::Record->add( {
@@ -81,10 +131,8 @@ sub install_archive_type {
 
 
 sub run {
-    my ( $self, $package ) = @_;  # $package is a canonicalized name
-
+    my ( $self, $package ) = @_; 
     # XXX: check if we've installed this package
-
     # XXX: check if package files conflict
 
     my $info = Vimana->index->find_package( $package );
@@ -123,7 +171,7 @@ sub run {
     # if it's vimball, install it
     my $ret;
     if( $pkgfile->is_text ) {
-        my $installer = $self->get_installer('text');
+        my $installer = $self->get_installer('text' , { package => $pkgfile });
         $ret = $installer->run( $pkgfile );
     }
     elsif( $pkgfile->is_archive ) {
