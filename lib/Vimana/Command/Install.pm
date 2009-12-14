@@ -39,20 +39,21 @@ sub get_installer {
 
 
 sub check_strategies {
-    my $self = shift;
-    my $pkg = shift;
-    my @sts = @_;
+    my ($self,$pkg,@sts) = @_;
     my @ins_type;
     for my $st ( @sts ) {
         print $st->{name} . ' : ' . $st->{desc} . ' ...';
-        my $method = $st->{method};
-        if( $pkg->$method ) {
-            print " [ found ]\n" ;
-            push @ins_type , $st->{installer};
+        my $deps = $st->{deps};
+        my $found;
+NEXT_TYPE:
+        for ( @$deps ) {
+            if ( -e $_ ) {
+                push @ins_type , $st->{installer};
+                $found = 1;
+                last NEXT_TYPE;
+            }
         }
-        else {
-            print " [ not found ]\n";
-        }
+        print $found ? "[found]\n" : "[not found]\n";
     }
     return @ins_type;
 }
@@ -70,57 +71,10 @@ sub install_archive_type {
     $logger->info("Changing directory to $tmpdir.");
     chdir $tmpdir;
 
-    my $files = $pkgfile->archive_files();
-
-    my $ret;
-    my @ins_type = $self->check_strategies( $pkgfile ,
-        {
-            name => 'Meta',
-            desc => q{Check if 'META' or 'VIMMETA' file exists. support for VIM::Packager.},
-            installer => 'meta',
-            method => 'has_metafile',
-        },
-        {
-            name => 'Makefile',
-            desc => q{Check if makefile exists.},
-            installer => 'Makefile',
-            method => 'has_makefile',
-        },
-        {
-            name => 'Rakefile',
-            desc => q{Check if rakefile exists.},
-            installer => 'Rakefile',
-            method => 'has_rakefile',
-        },
-    );
-
-    if( @ins_type == 0 ) {
-        $logger->warn( "Package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file" );
-        $logger->info( "No availiable strategy, try to auto-install." );
-        push @ins_type,'auto';
-    }
-    
-
-DONE:
-    for my $ins_type ( @ins_type ) {
-        my $installer = $self->get_installer( $ins_type , { package => $pkgfile } );
-        $ret = $installer->run( $tmpdir );
-
-        last DONE if $ret;  # succeed
-        last DONE if ! $installer->_continue;  # not succeed, but we should continue other installation.
-    }
-
-    unless( $ret ) {
-        $logger->warn("Installation failed.");
-
-        $logger->warn("Vimana does not know how to install this package");
-        return $ret;
-    }
-
-    $logger->info( "Succeed." );
-    return $ret;
+    return $self->install_by_strategy( $tmpdir , { cleanup => 1 } );
 
     # add record:
+    # my $files = $pkgfile->archive_files();
     # Vimana::Record->add( {
     #     cname => $pkgfile->cname,
     #     url  => $pkgfile->url,
@@ -129,61 +83,127 @@ DONE:
     # });
 }
 
-
-sub run {
-    my ( $self, $package ) = @_; 
-    # XXX: check if we've installed this package
-    # XXX: check if package files conflict
-
-    my $info = Vimana->index->find_package( $package );
-
-    unless( $info ) {
-        $logger->error("Can not found package: $package");
-        return 0;
-    }
-
-    my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
-
-    my $dir = '/tmp' || Vimana::Util::tempdir();
-
-    my $url = $page->{download};
-    my $filename = $page->{filename};
-    my $target = File::Spec->join( $dir , $filename );
-
-    $logger->info("Downloading from: $url");;
-
-    my $pkgfile = Vimana::PackageFile->new( {
-            cname      => $package,
-            file      => $target,
-            url       => $url,
-            info      => $info,
-            page_info => $page,
-    } );
-
-    return unless $pkgfile->download();
-
-    $logger->info("Stored at: $target");
-
-    $pkgfile->detect_filetype();
-    $pkgfile->preprocess( );
-
-
-    # if it's vimball, install it
+sub install_by_strategy {
+    my ($self,$tmpdir,$args) = @_;
     my $ret;
-    if( $pkgfile->is_text ) {
-        my $installer = $self->get_installer('text' , { package => $pkgfile });
-        $ret = $installer->run( $pkgfile );
+    my @ins_type = $self->check_strategies( 
+        {
+            name => 'Meta',
+            desc => q{Check if 'META' or 'VIMMETA' file exists. support for VIM::Packager.},
+            installer => 'meta',
+            deps =>  [qw(VIMMETA META)],
+        },
+        {
+            name => 'Makefile',
+            desc => q{Check if makefile exists.},
+            installer => 'Makefile',
+            deps => [qw(makefile Makefile)],
+        },
+        {
+            name => 'Rakefile',
+            desc => q{Check if rakefile exists.},
+            installer => 'Rakefile',
+            deps => [qw(rakefile Rakefile)],
+        });
+
+    if( @ins_type == 0 ) {
+        $logger->warn( "Package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file" );
+        $logger->info( "No availiable strategy, try to auto-install." );
+        push @ins_type,'auto';
     }
-    elsif( $pkgfile->is_archive ) {
-        $ret = $self->install_archive_type( $pkgfile );
+    
+DONE:
+    for my $ins_type ( @ins_type ) {
+        my $installer = $self->get_installer( $ins_type , { args => $args } );
+        $ret = $installer->run( $tmpdir );
+
+        last DONE if $ret;  # succeed
+        last DONE if ! $installer->_continue;  # not succeed, but we should continue other installation.
     }
 
     unless( $ret ) {
-        print "Installation Failed.\n";
-        exit 1;
+        $logger->warn("Installation failed.");
+        $logger->warn("Vimana does not know how to install this package");
+        return $ret;
     }
 
-    print "Installation Done.\n";
+    $logger->info( "Succeed." );
+    return $ret;
+}
+
+sub stdlize_uri {
+    my $uri = shift;
+    if( $uri =~ s{^(git|svn):}{} )  { 
+        return $1,$uri;
+    }
+    return undef;
+}
+
+
+sub run {
+    my ( $self, $arg ) = @_; 
+    # XXX: check if we've installed this package
+    # XXX: check if package files conflict
+    if (  $arg =~ m{^git:} or $arg =~ m{^svn:} ) {
+        my ( $rcs, $uri ) = stdlize_uri $arg;
+        my $dir = Vimana::Util::tempdir();
+        my $cmd;
+        if( $rcs eq 'git' )  { 
+            $cmd = 'git clone';
+        }
+        elsif( $rcs eq 'svn' ) {
+            $cmd = 'svn co';
+        }
+        system(qq{$cmd $uri $dir});
+        chdir $dir;
+        return $self->install_by_strategy($dir , { cleanup => 1 });
+    }
+    elsif( $arg eq '.' ) {
+        chdir '.';
+        return $self->install_by_strategy('.' , { cleanup => 0 });
+    }
+    else {
+        my $package = $arg;
+
+        my $info = Vimana->index->find_package( $package );
+        unless( $info ) {
+            $logger->error("package $package not found.");
+            return 0;
+        }
+        my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
+        my $dir = '/tmp' || Vimana::Util::tempdir();
+        my $url = $page->{download};
+        my $filename = $page->{filename};
+        my $target = File::Spec->join( $dir , $filename );
+        $logger->info("Downloading from: $url");;
+        my $pkgfile = Vimana::PackageFile->new( {
+                cname      => $package,
+                file      => $target,
+                url       => $url,
+                info      => $info,
+                page_info => $page,
+        } );
+        return unless $pkgfile->download();
+
+        $pkgfile->detect_filetype();
+        $pkgfile->preprocess( );
+
+        # if it's vimball, install it
+        my $ret;
+        if( $pkgfile->is_text ) {
+            my $installer = $self->get_installer('text' , { package => $pkgfile });
+            $ret = $installer->run( $pkgfile );
+        }
+        elsif( $pkgfile->is_archive ) {
+            $ret = $self->install_archive_type( $pkgfile );
+        }
+        unless( $ret ) {
+            print "Installation Failed.\n";
+            exit 1;
+        }
+        print "Installation Done.\n";
+    }
+
 }
 
 

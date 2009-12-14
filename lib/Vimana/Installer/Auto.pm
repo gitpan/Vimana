@@ -24,17 +24,32 @@ sub find_vimball_files {
     return @vimballs;
 }
 
+
+sub find_files {
+    my $self = shift;
+    my @dirs = @_;
+    use File::Find;
+    use File::Spec;
+    my @files;
+    File::Find::find(sub {
+        return if m{\.(?:git|svn)};
+        return if $File::Find::dir =~ m{\.(git|svn)};
+        my $filepath = File::Spec->catfile( $File::Find::dir, $_ );
+        push @files, $filepath if -f $_;
+    } , @dirs );
+    return @files;
+}
+
 sub run {
     my ($self, $out ) = @_;
-    my $pkg = $self->package;
-    my @files = $pkg->archive->files;
+    my @files = $self->find_files( '.' );
 
     print "Archive content:\n";
     for (@files ) {
         print "\t$_\n";
     }
 
-    if( $pkg->has_vimball() ) {
+    if( grep /\.vba$/,@files ) {
         $logger->info( "vimball files found, trying to install vimball files");
         use Vimana::VimballInstall;
         my @vimballs = find_vimball_files $out;
@@ -43,9 +58,6 @@ sub run {
 
     # check directory structure
     {
-        # XXX: check vim runtime path subdirs , mv to init script
-        $logger->info("Initializing vim runtime directories") ;
-        Vimana::Util::init_vim_runtime();
 
         my @files;
         File::Find::find(  sub {
@@ -58,6 +70,10 @@ sub run {
             $logger->warn("Can't found base path.");
             return 0;
         }
+
+        # XXX: check vim runtime path subdirs , mv to init script
+        $logger->info("Initializing vim runtime directories") ;
+        Vimana::Util::init_vim_runtime();
         
         $logger->info( "Basepath found: " . $_ ) for ( keys %$nodes );
 
@@ -67,9 +83,10 @@ sub run {
         $self->update_vim_doc_tags();
     }
 
-    $logger->info("Cleaning up temporary directory.");
-
-    rmtree [ $out ] if -e $out;
+    if( $self->args and $self->args->{cleanup} ) {
+        $logger->info("Cleaning up temporary directory.");
+        rmtree [ $out ] if -e $out;
+    }
 
     return 1;
 }
@@ -84,22 +101,8 @@ sub install_from_nodes {
     for my $node  ( grep { $nodes->{ $_ } > 1 } keys %$nodes ) {
         $logger->info("$node => $to");
         my (@ret) = dircopy($node, $to );
-
     }
 }
-
-=head2 i_know_what_to_do
-
-=cut
-
-sub i_know_what_to_do {
-    my $nodes = shift;
-    for my $v ( values %$nodes ) {
-        return 1 if $v > 1;
-    }
-    return 0;  # i am not sure
-}
-
 
 =head2 find_base_path 
 
@@ -110,7 +113,8 @@ sub find_base_path {
     my $nodes = {};
     for my $p ( @$paths ) {
         if ( $p =~ m{^(.*?/)?(plugin|doc|syntax|indent|colors|autoload|after|ftplugin)/.*?\.(vim|txt)$} ) {
-            $nodes->{ $1 || '' } ++;
+            my $lib = $1 || '.';
+            $nodes->{ $lib } ++ if $lib !~ m{after/};
         }
     }
     return $nodes;

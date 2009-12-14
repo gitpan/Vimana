@@ -26,6 +26,10 @@ And now, you can write your own vim meta file
 
 NOTE: Vimana only provides search, info ,install commmands currently.
 
+SCREENSHOT
+===============
+![img](http://cloud.github.com/downloads/c9s/Vimana/Screen_shot_2009-12-14_at_9.13.10_AM.png)
+
 INSTALLATION
 ===============
 
@@ -87,6 +91,18 @@ TESTED CASES
     $ vimaan install gsession.vim
     $ vimana install snipmate
     $ vimana i svg.vim
+    $ vimana i railscasts-theme
+    $ vimana i dark-ruby
+    $ vimana i bufexplorer.zip
+    $ vimana i xml.vim
+    $ vimana i cctree
+
+    $ vimana i git:git://github.com/c9s/fastgit.vim.git
+    $ vimana i git:git@github.com:c9s/fastgit.vim.git
+    $ vimana i svn:svn+ssh://path/to/your/repo
+
+    $ cd snipmate.git
+    $ vimana i .    # install from current path.
 
 SUPPORT AND DOCUMENTATION
 ==========================
