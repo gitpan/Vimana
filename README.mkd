@@ -101,8 +101,31 @@ TESTED CASES
     $ vimana i git:git@github.com:c9s/fastgit.vim.git
     $ vimana i svn:svn+ssh://path/to/your/repo
 
+    $ vimana i jslint.vim
+    $ vimana i fakeclip
+
     $ cd snipmate.git
     $ vimana i .    # install from current path.
+
+MAKE YOUR PLUGIN INSTALLABLE
+============================
+
+1. use vim runtime directory structure like this:
+
+        foo.tar.gz:
+            plugin/foo.vim
+            syntax/foo.vim
+            doc/foo.txt
+
+2. add type info in your vim script file:
+
+        " script type: plugin
+
+uppercase also available:
+
+        " Script Type: plugin
+
+then the script will be installed into `~/.vim/plugin/`.
 
 SUPPORT AND DOCUMENTATION
 ==========================
