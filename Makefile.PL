@@ -23,6 +23,7 @@ requires
     'Test::More'     => 0,
     'URI'            => 1.37,
     'YAML'           => 0,
+    'Digest::MD5'    => 0,
     ;
 
 include('ExtUtils::AutoInstall');
@@ -37,6 +38,7 @@ my @lines = split("\n", $ret );
 print join( "\n" , splice(  @lines , 0 , 3 ) ) , "\n";
 print '-' x 10 . "\n";
 
+repository 'http://github.com/c9s/Vimana';
 WriteAll( sign => 0 );
 
 1;

@@ -20,9 +20,11 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2009.35419
+    version: 2010.02301
   Vimana::Accessor:
     file: lib/Vimana/Accessor.pm
+  Vimana::Archive:
+    file: lib/Vimana/Archive.pm
   Vimana::Command:
     file: lib/Vimana/Command.pm
   Vimana::Command::Download:
@@ -33,6 +35,8 @@ provides:
     file: lib/Vimana/Command/Install.pm
   Vimana::Command::Installed:
     file: lib/Vimana/Command/Installed.pm
+  Vimana::Command::Remove:
+    file: lib/Vimana/Command/Remove.pm
   Vimana::Command::Search:
     file: lib/Vimana/Command/Search.pm
   Vimana::Command::Update:
@@ -63,6 +67,9 @@ provides:
     file: lib/Vimana/PackageFile.pm
   Vimana::Record:
     file: lib/Vimana/Record.pm
+  Vimana::Recursive:
+    file: lib/Vimana/Recursive.pm
+    version: 0.38
   Vimana::Util:
     file: lib/Vimana/Util.pm
   Vimana::VimOnline:
@@ -77,6 +84,7 @@ requires:
   App::CLI: 0.08
   Archive::Any: 0
   DateTime: 0
+  Digest::MD5: 0
   Exporter::Lite: 0
   File::Copy::Recursive: 0.38
   File::Path: 2.07
@@ -90,4 +98,5 @@ requires:
   YAML: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 2009.35419
+  repository: http://github.com/c9s/Vimana
+version: 2010.02301
