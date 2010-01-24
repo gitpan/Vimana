@@ -2,6 +2,7 @@ package Vimana::Record;
 use warnings;
 use strict;
 use Vimana;
+use JSON;
 use File::Path;
 use Digest::MD5 qw(md5_hex);
 use YAML;
@@ -20,6 +21,7 @@ sub record_path  {
 load package record , returns a hashref which contains:
 
 spec:
+
     {
         version => 0.1,
         generated_by => 'Vimana [Version]'
@@ -51,30 +53,57 @@ sub load {
         return ;
     }
 
-    my $record = YAML::LoadFile( $record_file );
-    unless( $record ) {
-        print STDERR "Can not load record\n";
-        return ;
+    open FH , "<" , $record_file;
+    local $/;
+    my $json = <FH>;
+    close FH;
+
+    my $record;
+    eval {
+        $record = from_json( $json );
+    };
+    if( $@ ) {
+        print STDERR $@;
+
+        $record = YAML::LoadFile( $record_file );
+
+        unless( $record ) {
+            print STDERR "Can not load record. Use -f or --force option to remove.\n";
+            return;
+        }
     }
     return $record;
 }
 
+
+sub _remove_record {
+    my ($self,$pkgname) = @_;
+    print "Removing record\n";
+    my $file = $self->record_path( $pkgname );
+    return unlink $file;
+}
+
 sub remove {
-    my ( $class , $pkgname ) = @_;
-    my $record = $class->load( $pkgname );
+    my ( $self, $pkgname , $force ) = @_;
+    my $record = $self->load($pkgname);
+
+    if( !$record and $force ) {
+        # force remove record file.
+        $self->_remove_record( $pkgname );
+        return;
+    }
+
     return unless $record;
 
     my $files = $record->{files};
     print "Removing package $pkgname\n";
-    for my $entry ( @$files ) {
+    for my $entry (@$files) {
         # XXX: check digest here
         print "\tRemoving @{[ $entry->{file} ]}\n";
         unlink $entry->{file};
     }
 
-    print "Removing record\n";
-    my $file = $class->record_path( $pkgname );
-    unlink $file;
+    $self->_remove_record( $pkgname );
     print "Done\n";
 }
 
@@ -87,7 +116,12 @@ sub add {
 
     my $record_file =  $class->record_path( $pkgname );
     return 0 if -f $record_file;
-    return YAML::DumpFile( $record_file , $record  );
+
+    open FH , ">" , $record_file;
+    print FH to_json( $record );
+    close FH;
+    
+    #return YAML::DumpFile( $record_file , $record  );
 }
 
 sub mk_file_digest {

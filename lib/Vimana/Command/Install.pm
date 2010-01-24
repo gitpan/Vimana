@@ -7,21 +7,21 @@ use LWP::Simple qw();
 
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
+use Vimana::Util;
 use Vimana::Record;
 use Vimana::VimballInstall;
 use Vimana::Logger;
 use Vimana::PackageFile;
 
-sub options {
-    (
+sub options { (
         'd|dry-run'           => 'dry_run',
         'v|verbose'           => 'verbose',
         'y|yes'               => 'assume_yes',
         'ai|auto-install'     => 'auto_install',
         'pi|port-install'     => 'port_install',
         'mi|makefile-install' => 'makefile_install',
-    );
-}
+        'r|runtime-path=s'    => 'runtime_path',
+) }
 
 use Vimana::Installer::Meta;
 use Vimana::Installer::Makefile;
@@ -30,13 +30,13 @@ use Vimana::Installer::Auto;
 use Vimana::Installer::Text;
 
 # XXX: mv this method into Vimana::Installer , maybe
+
+# @args: will pass to Vimana::Installer::* Class.
 sub get_installer {
     my ( $self, $type, @args ) = @_;
-    $type = ucfirst($type);
-    my $class = qq{Vimana::Installer::$type};
+    my $class = qq{Vimana::Installer::} . ucfirst($type);
     return $class->new( @args );
 }
-
 
 sub check_strategies {
     my ($self,@sts) = @_;
@@ -47,33 +47,19 @@ sub check_strategies {
         my $found;
 NEXT_TYPE:
         for ( @$deps ) {
-            if ( -e $_ ) {
-                push @ins_type , $st->{installer};
-                $found = 1;
-                last NEXT_TYPE;
-            }
+            next unless -e $_;
+
+            push @ins_type , $st->{installer};
+            $found = 1;
+            last NEXT_TYPE;
         }
         print $found ? "[found]\n" : "[not found]\n";
     }
     return @ins_type;
 }
 
-sub install_archive_type {
-    my ($self, $pkgfile) = @_;
-
-    # extract to a path 
-    my $tmpdir = Vimana::Util::tempdir();
-
-    $logger->info( "Extracting to $tmpdir." );
-    $pkgfile->extract_to( $tmpdir );
-    $logger->info("Changing directory to $tmpdir.");
-
-    chdir $tmpdir;
-    return $self->install_by_strategy( $pkgfile, $tmpdir , { cleanup => 1 } );
-}
-
 sub install_by_strategy {
-    my ($self,$pkgfile,$tmpdir,$args) = @_;
+    my ( $self, $pkgfile, $tmpdir, $args ) = @_;
     my $ret;
     my @ins_type = $self->check_strategies( 
         {
@@ -103,7 +89,14 @@ sub install_by_strategy {
     
 DONE:
     for my $ins_type ( @ins_type ) {
-        my $installer = $self->get_installer( $ins_type , { args => $args } );
+        #
+        # $args: (hashref)
+        #   is used for Vimana::Installer::*->new( { args => $args } );
+        #   
+        #       cleanup (boolean)
+        #       runtime_path (string)
+        #
+        my $installer = $self->get_installer( $ins_type, $args );
         $ret = $installer->run( $pkgfile, $tmpdir );
 
         last DONE if $ret;  # succeed
@@ -133,6 +126,13 @@ sub run {
     my ( $self, $arg ) = @_; 
     # XXX: check if we've installed this package
     # XXX: check if package files conflict
+
+    # XXX: $self->{runtime_path}
+
+    $self->{runtime_path} ||= Vimana::Util::runtime_path();
+
+    print STDERR "Plugin will be installed to vim runtime path: " . $self->{runtime_path} . "\n";
+
     if (  $arg =~ m{^git:} or $arg =~ m{^svn:} ) {
         my ( $rcs, $uri ) = stdlize_uri $arg;
         my $dir = Vimana::Util::tempdir();
@@ -145,11 +145,15 @@ sub run {
         }
         system(qq{$cmd $uri $dir});
         chdir $dir;
-        return $self->install_by_strategy( undef, $dir, { cleanup => 1 } );
+        return $self->install_by_strategy( undef, $dir, 
+            { cleanup => 1 , 
+              runtime_path => $self->{runtime_path} } );
     }
     elsif( $arg eq '.' ) {
         chdir '.';
-        return $self->install_by_strategy( undef, '.', { cleanup => 0 } );
+        return $self->install_by_strategy( undef, '.',
+            { cleanup => 0  , 
+              runtime_path => $self->{runtime_path} } );
     }
     else {
         my $package = $arg;
@@ -196,11 +200,27 @@ sub run {
         # if it's vimball, install it
         my $ret;
         if( $pkgfile->is_text ) {
+
+            # XXX: need to record. and support runtime_path.
+
             my $installer = $self->get_installer('text' , { package => $pkgfile });
             $ret = $installer->run( $pkgfile );
+
         }
         elsif( $pkgfile->is_archive ) {
-            $ret = $self->install_archive_type( $pkgfile );
+
+            # extract to a path 
+            my $tmpdir = Vimana::Util::tempdir();
+
+            $logger->info( "Extracting to $tmpdir." );
+            $pkgfile->extract_to( $tmpdir );
+            $logger->info("Changing directory to $tmpdir.");
+
+            chdir $tmpdir;
+            $ret = $self->install_by_strategy( $pkgfile, $tmpdir,
+                { cleanup => 1, 
+                  runtime_path => $self->{runtime_path} } );
+
         }
         unless( $ret ) {
             print "Installation Failed.\n";
