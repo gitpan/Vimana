@@ -20,7 +20,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2010.02418
+    version: 2010.02422
   Vimana::Accessor:
     file: lib/Vimana/Accessor.pm
   Vimana::Archive:
@@ -86,7 +86,6 @@ requires:
   DateTime: 0
   Digest::MD5: 0
   Exporter::Lite: 0
-  File::Copy::Recursive: 0.38
   File::Path: 2.07
   File::Spec: 0
   File::Type: 0
@@ -100,4 +99,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2010.02418
+version: 2010.02422
