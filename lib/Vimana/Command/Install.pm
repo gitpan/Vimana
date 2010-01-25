@@ -17,7 +17,8 @@ sub options { (
         'd|dry-run'           => 'dry_run',
         'v|verbose'           => 'verbose',
         'y|yes'               => 'assume_yes',
-        'ai|auto-install'     => 'auto_install',
+        'ai|auto-install'     => 'auto_install', 
+                # XXX: auto-install should optional and not by default.
         'pi|port-install'     => 'port_install',
         'mi|makefile-install' => 'makefile_install',
         'r|runtime-path=s'    => 'runtime_path',
@@ -233,7 +234,22 @@ sub run {
 
 }
 
-
-
-
 1;
+__END__
+
+
+=head1 NAME
+
+Vimana::Command::Install - install a vim plugin package.
+
+=head1 SYNOPSIS
+
+    $ vimana install [plugin]
+
+=head1 OPTIONS
+
+    -v    : verbose
+
+=head1 DESCRIPTION
+
+
