@@ -17,6 +17,7 @@ sub options { (
         'd|dry-run'           => 'dry_run',
         'v|verbose'           => 'verbose',
         'y|yes'               => 'assume_yes',
+        'f|force'             => 'force_install',
         'ai|auto-install'     => 'auto_install', 
                 # XXX: auto-install should optional and not by default.
         'pi|port-install'     => 'port_install',
@@ -129,6 +130,20 @@ sub run {
     # XXX: check if package files conflict
 
     # XXX: $self->{runtime_path}
+
+    if( $self->{runtime_path} ) {
+        print STDERR <<END
+    You are using runtime path option.
+
+    To load the plugin , you might need to add below configuration to your vimrc file
+        set runtimepath+=@{[ $self->{runtime_path} ]}
+
+    See vim documentation for runtimepath option.
+
+        :help 'runtimepath'
+
+END
+    }
 
     $self->{runtime_path} ||= Vimana::Util::runtime_path();
 
