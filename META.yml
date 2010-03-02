@@ -17,10 +17,11 @@ no_index:
   directory:
     - inc
     - t
+    - xt
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2010.05607
+    version: 2010.06109
   Vimana::Accessor:
     file: lib/Vimana/Accessor.pm
   Vimana::Archive:
@@ -29,6 +30,8 @@ provides:
     file: lib/Vimana/Command.pm
   Vimana::Command::Download:
     file: lib/Vimana/Command/Download.pm
+  Vimana::Command::Help:
+    file: lib/Vimana/Command/Help.pm
   Vimana::Command::Info:
     file: lib/Vimana/Command/Info.pm
   Vimana::Command::Install:
@@ -99,4 +102,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2010.05607
+version: 2010.06109
