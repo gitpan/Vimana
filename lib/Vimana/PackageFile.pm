@@ -1,7 +1,6 @@
 package Vimana::PackageFile;
 use warnings;
 use strict;
-use Vimana::Logger;
 use Vimana::Util;
 use Archive::Any;
 use LWP::Simple qw();
@@ -66,13 +65,14 @@ sub download {
 
     my $file_content = LWP::Simple::get( $self->url );
     unless( $file_content ) {
-        $logger->error('Can not download file');
+        print "Can not download file\n";
         return 0;
     }
 
     unlink $self->file if -e $self->file;
 
-    print "Saving file to @{[ $self->file ]} \n";
+    # print "Saving file to @{[ $self->file ]} \n";
+
     open FH, ">", $self->file or die $!;
     print FH $file_content;
     close FH;
@@ -160,14 +160,14 @@ sub copy_to {
     my ( $v, $dir, $file ) = File::Spec->splitpath($path);
     File::Path::mkpath [ $dir ];
 
-    $logger->info( "Copying $src to $path" );
+    # $logger->info( "Copying $src to $path" );
     my $ret = File::Copy::copy( $src => $path );
     if( $ret ) {
         my (@parts)= File::Spec->splitpath( $src );
         return File::Spec->join($path,$parts[2]);
     }
 
-    $logger->error( $! );
+    print STDERR $! if $!;
     return;
 }
 
@@ -191,7 +191,6 @@ sub extract_to {
     # my $path ||= Vimana::Util::tempdir();
     rmtree [ $path ] if -e $path;
     mkpath [ $path ];
-    print "Extracting to: $path\n";
     return $self->archive->extract($path);
 }
 

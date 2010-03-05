@@ -22,10 +22,13 @@ sub run {
         $target = $pkgfile->copy_to_rtp( File::Spec->join( $self->runtime_path , $type ));
     }
     else {
-        # can't found script ype,
+        # Can't found script ype,
         # inspect text filetype here.  (colorscheme, ftplugin ...etc)
         $logger->info( "Inspecting file content for script type." );
-        $type = $self->inspect_text_content( $self->package->content );
+
+        my $arg = $self->inspect_text_content2( $self->package->content );
+        $type = $arg->{type};
+
         if ($type) {
             $logger->info("Script type found: $type.");
             $logger->info("Installing..");
@@ -67,15 +70,44 @@ sub inspect_text_content {
         return $type;
     }
 
+    warn 'inspect_text_content deprecated.';
+
     return 'colors'   if $content =~ m/^let\s+(g:)?colors_name\s*=/;
     return 'syntax'   if $content =~ m/^syn[tax]* (?:match|region|keyword)/;
     return 'compiler' if $content =~ m/^let\s+current_compiler\s*=/;
     return 'indent'   if $content =~ m/^let\s+b:did_indent/;
 
     # XXX: inspect more types.
-
     return 0;
 }
 
+
+sub inspect_text_content2 {
+    my ($self,$content) = @_;
+    my $arg =  {};
+    if( $content =~ m{^"\s*script\s*type:\s*(\w+)}im  ){
+        my $type = $1;
+        $arg->{type} = $type;
+    }
+    else {
+        $arg->{type} = 'colors'   if $content =~ m/^let\s+(g:)?colors_name\s*=/;
+        $arg->{type} = 'syntax'   if $content =~ m/^syn[tax]* (?:match|region|keyword)/;
+        $arg->{type} = 'compiler' if $content =~ m/^let\s+current_compiler\s*=/;
+        $arg->{type} = 'indent'   if $content =~ m/^let\s+b:did_indent/;
+        # XXX: inspect more types.
+    }
+
+    if( $content =~ m{^"\s*(?:script\s*)?(?:deps|dependency|dependencies):\s*(.*)}im ) {
+        my $deps_str = $1;
+        my @deps = split /\s*,\s*/,$deps_str;
+        $arg->{deps} = \@deps;
+    }
+
+    if( $content =~ m{^"\s*(?:script\s*)?version:\s*([.0-9]+)}im ) {
+        $arg->{version} = $1;
+    }
+
+    return $arg;
+}
 
 1;

@@ -5,6 +5,7 @@ use base qw(App::CLI::Command);
 use URI;
 use LWP::Simple qw();
 use File::Path qw(rmtree);
+use Cwd;
 
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
@@ -19,9 +20,9 @@ sub options { (
         'v|verbose'           => 'verbose',
         'y|yes'               => 'assume_yes',
         'f|force'             => 'force_install',
+
+        # XXX: auto-install should optional and not by default.
         'ai|auto-install'     => 'auto_install', 
-                # XXX: auto-install should optional and not by default.
-        'pi|port-install'     => 'port_install',
         'mi|makefile-install' => 'makefile_install',
         'r|runtime-path=s'    => 'runtime_path',
 ) }
@@ -75,10 +76,9 @@ NEXT_DEP_FILE:
     return @ins_type;
 }
 
-use Cwd;
 
 sub install_by_strategy {
-    my ( $self, $pkgfile, $tmpdir, $args ) = @_;
+    my ( $self, $pkgfile, $tmpdir, $args , $verbose ) = @_;
 
     my $prev_dir = getcwd();
     chdir($tmpdir);
@@ -107,14 +107,13 @@ sub install_by_strategy {
         });
 
     if( @ins_type == 0 ) {
-        $logger->warn( "Package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file" );
-        $logger->info( "No availiable strategy, try to auto-install." );
+        print "Package doesn't contain META,VIMMETA,VIMMETA.yml or Makefile file\n";
+        print "No availiable strategy, try to auto-install.\n" if $verbose;
         push @ins_type,'auto';
     }
     
 DONE:
     for my $ins_type ( @ins_type ) {
-        #
         # $args: (hashref)
         #   is used for Vimana::Installer::*->new( { args => $args } );
         #   
@@ -122,25 +121,25 @@ DONE:
         #       runtime_path (string)
         #
         my $installer = $self->get_installer( $ins_type, $args );
-        $ret = $installer->run( $pkgfile, $tmpdir );
+        $ret = $installer->run( $pkgfile, $tmpdir , $verbose );
 
         last DONE if $ret;  # succeed
         last DONE if ! $installer->_continue;  # not succeed, but we should continue other installation.
     }
 
     unless( $ret ) {
-        $logger->warn("Installation failed.");
-        $logger->warn("Vimana does not know how to install this package");
+        print "Installation failed.\n";
+        print "Vimana does not know how to install this package\n";
+        # XXX: provide more usable help message.
         return $ret;
     }
 
     chdir($prev_dir);
     if( $args->{cleanup} ) {
-        $logger->info("Cleaning up temporary directory.");
+        print "Cleaning up temporary directory.\n" if $verbose;
         rmtree [ $tmpdir ] if -e $tmpdir;
     }
 
-    $logger->info( "Succeed." );
     return $ret;
 }
 
@@ -160,12 +159,15 @@ sub run {
 
     # XXX: $self->{runtime_path}
 
+    my $verbose = $self->{verbose};
+
     if( $self->{runtime_path} ) {
-        print STDERR <<END
+        print STDERR <<END;
     You are using runtime path option.
 
-    To load the plugin , you might need to add below configuration to your vimrc file
-        set runtimepath+=@{[ $self->{runtime_path} ]}
+    To load the plugin , you will need to add below configuration to your vimrc file
+
+        :set runtimepath+=@{[ $self->{runtime_path} ]}
 
     See vim documentation for runtimepath option.
 
@@ -174,11 +176,14 @@ sub run {
 END
     }
 
-    $self->{runtime_path} ||= Vimana::Util::runtime_path();
+    my $rtp = $self->{runtime_path} 
+        || Vimana::Util::runtime_path();
 
-    print STDERR "Plugin will be installed to vim runtime path: " . $self->{runtime_path} . "\n";
+    print STDERR "Plugin will be installed to vim runtime path: " . 
+                    $rtp . "\n" if $self->{runtime_path};
 
     if (  $arg =~ m{^git:} or $arg =~ m{^svn:} ) {
+        # XXX: check 'git' or 'svn' binary here.
         my ( $rcs, $uri ) = stdlize_uri $arg;
         my $dir = Vimana::Util::tempdir();
         my $cmd;
@@ -191,12 +196,12 @@ END
         system(qq{$cmd $uri $dir});
         return $self->install_by_strategy( undef, $dir, 
             { cleanup => 1 , 
-              runtime_path => $self->{runtime_path} } );
+              runtime_path => $rtp } , $verbose );
     }
     elsif( $arg eq '.' ) {
         return $self->install_by_strategy( undef, '.',
             { cleanup => 0  , 
-              runtime_path => $self->{runtime_path} } );
+              runtime_path => $rtp } , $verbose );
     }
     else {
         my $package = $arg;
@@ -207,13 +212,17 @@ END
             my $record = Vimana::Record->load( $package );
             if( $record ) {
 
-                print STDERR "Package $package is installed. reinstall (upgrade) ? (Y/n) ";
-                my $ans; $ans = <STDIN>;
-                chomp( $ans );
+                if( $self->{assume_yes} ) {
+                    print STDERR "Package $package is installed. removing...\n";
+                }
+                else {
+                    print STDERR "Package $package is installed. reinstall (upgrade) ? (Y/n) ";
+                    my $ans; $ans = <STDIN>;
+                    chomp( $ans );
+                    return if $ans =~ /n/i;
+                }
 
-                return if $ans =~ /n/i;
-
-                Vimana::Record->remove( $package );
+                Vimana::Record->remove( $package , undef , $verbose );
             }
         }
 
@@ -223,11 +232,16 @@ END
             return 0;
         }
         my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
+
+        # XXX: dont use '/tmp', use a better temp dir function.
         my $dir = '/tmp' || Vimana::Util::tempdir();
+
         my $url = $page->{download};
         my $filename = $page->{filename};
         my $target = File::Spec->join( $dir , $filename );
-        $logger->info("Downloading from: $url");;
+
+        print STDERR "Downloading from: $url\n" if $verbose;
+
         my $pkgfile = Vimana::PackageFile->new( {
                 cname      => $package,
                 file      => $target,
@@ -247,7 +261,7 @@ END
             # XXX: need to record.
             my $installer = $self->get_installer('text' , { 
                     package => $pkgfile , 
-                    runtime_path => $self->{runtime_path} } );
+                    runtime_path => $rtp } );
             $ret = $installer->run( $pkgfile );
         }
         elsif( $pkgfile->is_archive ) {
@@ -255,19 +269,22 @@ END
             # extract to a path 
             my $tmpdir = Vimana::Util::tempdir();
 
-            $logger->info( "Extracting to $tmpdir." );
+            print STDERR "Extracting to $tmpdir.\n" if $verbose;
+
             $pkgfile->extract_to( $tmpdir );
-            $logger->info("Changing directory to $tmpdir.");
+
+            print STDERR "Changing directory to $tmpdir.\n" if $verbose;
 
             $ret = $self->install_by_strategy( $pkgfile, $tmpdir,
                 { cleanup => 1, 
-                  runtime_path => $self->{runtime_path} } );
+                  runtime_path => $rtp } , $verbose );
 
         }
         unless( $ret ) {
             print "Installation Failed.\n";
             exit 1;
         }
+
         print "Installation Done.\n";
     }
 
@@ -288,6 +305,10 @@ Vimana::Command::Install - install a vim plugin package.
 =head1 OPTIONS
 
     -v    : verbose
+
+    -f    : force install
+
+    -r    : runtime path
 
 =head1 DESCRIPTION
 
