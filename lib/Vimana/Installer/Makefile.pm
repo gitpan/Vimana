@@ -4,8 +4,12 @@ use Vimana::Logger;
 use warnings;
 use strict;
 
+=head2 run( $path, $verbose )
+
+=cut
+
 sub run {
-    my ($self,$pkgfile,$path)=@_;
+    my ($self,$path,$verbose)=@_;
 
     my $makefile;
     for(qw(Makefile makefile)) {

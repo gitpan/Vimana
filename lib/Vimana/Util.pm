@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use base qw(Exporter::Lite);
 use File::Type;
-our @EXPORT = qw(canonical_script_name find_vim);
+our @EXPORT = qw(canonical_script_name find_vim get_vim_rtp);
 our @EXPORT_OK = qw(findbin find_vim runtime_path tempdir);
 
 sub canonical_script_name {
@@ -11,6 +11,7 @@ sub canonical_script_name {
     $name = lc $name;
     $name =~ s/\s+/-/g;
     $name =~ s/-?\(.*\)$//;
+    $name =~ s{[!]}{}g;
     $name =~ tr/_<>[],{/-/;
     $name =~ s/-+/-/g;
     $name;
@@ -88,5 +89,16 @@ sub init_vim_runtime {
 	}
 }
 
+sub get_vim_rtp {
+    my $file = 'rtp.tmp';
+    system(qq{vim -c "redir > $file" -c "echo &rtp" -c "q" });
+    open FILE, "<" , $file;
+    local $/;
+    my $content = <FILE>;
+    close FILE;
+    $content =~ s{[\n\r]}{}g;
+    unlink $file;
+    return split /,/,$content;
+}
 
 1;

@@ -14,20 +14,15 @@ use Vimana::Logger;
 use Vimana::Util;
 use DateTime;
 
+=head2 run( $path , $verbose )
+
+=cut
+
 sub run {
-    my ( $self, $pkgfile, $out , $verbose ) = @_;
-
-    # XXX: try to fill the record spec.
-    my $record = {
-        install_type => 'auto',
-        meta => {} ,
-        files => [ ],
-    };
-
-
+    my ( $self ) = @_;
+    my $out = $self->target;
+    my $verbose = $self->verbose;
     my @files = $self->find_files( '.' );
-
-
     if ( $verbose ) {
         print "Archive content:\n";
         for (@files ) {
@@ -68,7 +63,7 @@ sub run {
 
         my @installed_files = $self->install_from_nodes( $nodes , $self->runtime_path );
 
-        print "Updating helptags\n" if $verbose;
+        print "Updating helptags\n";
         $self->update_vim_doc_tags( $verbose );
 
         # record installed file checksum
@@ -78,7 +73,7 @@ sub run {
                 version => 0.2,    # record spec version
                 generated_by => 'Vimana-' . $Vimana::VERSION,
                 install_type => 'auto',    # auto , make , rake ... etc
-                package => $pkgfile->cname,
+                package => $self->package_name,
                 files => \@e,
         });
     }
@@ -127,8 +122,7 @@ sub find_base_path {
 }
 
 sub update_vim_doc_tags {
-    my $self = shift;
-    my $verbose = shift;
+    my ($self,$verbose) = @_;
     my $vim = find_vim();
     my $dir = File::Spec->join( $self->runtime_path , 'doc' );
     my $cmd = qq{vim -e -s -c ":helptags $dir" -c ":q"};
