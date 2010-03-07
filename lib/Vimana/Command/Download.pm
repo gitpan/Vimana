@@ -4,11 +4,8 @@ package Vimana::Command::Download;
 use base qw(App::CLI::Command);
 use URI;
 use LWP::Simple qw();
-
 require Vimana::VimOnline;
 require Vimana::VimOnline::ScriptPage;
-use Vimana::Logger;
-use Vimana::PackageFile;
 
 sub options { (
     'v|verbose'           => 'verbose',
@@ -17,32 +14,28 @@ sub options { (
 sub run {
     my ( $self, $package ) = @_;
 
+    my $verbose = $self->{verbose};
     my $index = Vimana->index();
     my $info = $index->find_package( $package );
 
     unless( $info ) {
-        $logger->error("Can not found package: $package");
+        print "Can not found package: $package\n";
         return 0;
     }
 
+    print "Script ID:" . $info->{script_id} . "\n" if $verbose;
+
     my $page = Vimana::VimOnline::ScriptPage->fetch( $info->{script_id} );
+    
 
-    my $dir = '/tmp' || tempdir( DIR => '/tmp' );
-
-    my $url = $page->{download};
+    my $url      = $page->{download};
     my $filename = $page->{filename};
+    my $dir      = tempdir( CLEANUP => 0 );               # download temp dir
+    my $target   = File::Spec->join( $dir, $filename );
 
-    $logger->info("Download from: $url");;
-
-    my $pkgfile = Vimana::PackageFile->new( {
-        file      => $filename,
-        url       => $url,
-        info      => $info,
-        page_info => $page,
-    } );
-
-    return unless $pkgfile->download();
-    $logger->info("Stored at: $filename");
+    print "Downloading from: $url\n";
+    Vimana::Installer->download( $url , $target );
+    print "Stored at : $target\n";
     print "Done\n";
 }
 

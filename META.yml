@@ -22,9 +22,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2010.06618
-  Vimana::Accessor:
-    file: lib/Vimana/Accessor.pm
+    version: 2010.06619
   Vimana::Archive:
     file: lib/Vimana/Archive.pm
   Vimana::Command:
@@ -39,6 +37,8 @@ provides:
     file: lib/Vimana/Command/Install.pm
   Vimana::Command::Installed:
     file: lib/Vimana/Command/Installed.pm
+  Vimana::Command::Rate:
+    file: lib/Vimana/Command/Rate.pm
   Vimana::Command::Remove:
     file: lib/Vimana/Command/Remove.pm
   Vimana::Command::Search:
@@ -55,20 +55,18 @@ provides:
     file: lib/Vimana/Installer.pm
   Vimana::Installer::Auto:
     file: lib/Vimana/Installer/Auto.pm
-  Vimana::Installer::Makefile:
-    file: lib/Vimana/Installer/Makefile.pm
   Vimana::Installer::Meta:
     file: lib/Vimana/Installer/Meta.pm
   Vimana::Installer::Rakefile:
     file: lib/Vimana/Installer/Rakefile.pm
   Vimana::Installer::Text:
     file: lib/Vimana/Installer/Text.pm
+  Vimana::Installer::Vimball:
+    file: lib/Vimana/Installer/Vimball.pm
   Vimana::Logger:
     file: lib/Vimana/Logger.pm
   Vimana::Logger::Compat:
     file: lib/Vimana/Logger.pm
-  Vimana::PackageFile:
-    file: lib/Vimana/PackageFile.pm
   Vimana::Record:
     file: lib/Vimana/Record.pm
   Vimana::Recursive:
@@ -84,7 +82,6 @@ provides:
     file: lib/Vimana/VimOnline/Search.pm
 requires:
   App::CLI: 0.08
-  Archive::Any: 0
   Archive::Extract: 0
   DateTime: 0
   Digest::MD5: 0
@@ -106,4 +103,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2010.06618
+version: 2010.06619
