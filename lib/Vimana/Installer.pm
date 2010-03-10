@@ -15,6 +15,7 @@ use Vimana::Installer::Makefile;
 use Vimana::Installer::Rakefile;
 use Vimana::Installer::Auto;
 use Vimana::Installer::Text;
+use Vimana::Util;
 
 use constant _continue => 0;
 
@@ -242,8 +243,9 @@ sub install_from_vcs {
     if( $cmd->{runtime_path} ) {
         $self->runtime_path_warn( $cmd );
     }
+    my @rtps = get_vim_rtp();
     my $rtp = $cmd->{runtime_path} 
-                || Vimana::Util::runtime_path();
+                || $rtps[0];
 
     print STDERR "Plugin will be installed to vim runtime path: " . 
                     $rtp . "\n" if $cmd->{runtime_path};
@@ -279,8 +281,9 @@ sub install_from_path {
     if( $cmd->{runtime_path} ) {
         $self->runtime_path_warn( $cmd );
     }
+    my @rtps = get_vim_rtp();
     my $rtp = $cmd->{runtime_path} 
-                || Vimana::Util::runtime_path();
+                || $rtps[0];
 
     print STDERR "Plugin will be installed to vim runtime path: " . 
                     $rtp . "\n" if $cmd->{runtime_path};
@@ -346,11 +349,11 @@ sub install {
         $self->runtime_path_warn( $cmd );
     }
 
+    my @rtps = get_vim_rtp();
     my $rtp = $cmd->{runtime_path} 
-                || Vimana::Util::runtime_path();
+                || $rtps[0];
 
-    print STDERR "Plugin will be installed to vim runtime path: " . 
-                    $rtp . "\n" if $cmd->{runtime_path};
+    print STDERR "Plugin will be installed to runtime path: $rtp\n";
 
     $self->prompt_for_removing_record( $package , $cmd->{assume_yes} , $verbose  );
 

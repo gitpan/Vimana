@@ -22,7 +22,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2010.06902
+    version: 2010.06903
   Vimana::Archive:
     file: lib/Vimana/Archive.pm
   Vimana::Command:
@@ -103,4 +103,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2010.06902
+version: 2010.06903
