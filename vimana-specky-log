@@ -1,0 +1,44 @@
+
+"Vimball" [Not edited] --No lines in buffer--
+".VimballRecord" 1L, 407C
+removed 8 files
+".VimballRecord" 0L, 0C written
+Vimball Archive
+extracted <syntax/rdoc.vim>: 52 lines
+"~/.vim/syntax/rdoc.vim" [New] 52L, 1434C written
+wrote /Users/c9s/.vim/syntax/rdoc.vim
+extracted <syntax/specrun.vim>: 75 lines
+"~/.vim/syntax/specrun.vim" [New] 75L, 1957C written
+wrote /Users/c9s/.vim/syntax/specrun.vim
+extracted <syntax/rspec.vim>: 30 lines
+"~/.vim/syntax/rspec.vim" [New] 30L, 1545C written
+wrote /Users/c9s/.vim/syntax/rspec.vim
+extracted <ftdetect/rspec.vim>: 1 lines
+"~/.vim/ftdetect/rspec.vim" [New] 1L, 51C written
+wrote /Users/c9s/.vim/ftdetect/rspec.vim
+extracted <ftplugin/rspec.vim>: 7 lines
+"~/.vim/ftplugin/rspec.vim" [New] 7L, 98C written
+wrote /Users/c9s/.vim/ftplugin/rspec.vim
+extracted <doc/specky.txt>: 333 lines
+"~/.vim/doc/specky.txt" [New] 333L, 12015C written
+wrote /Users/c9s/.vim/doc/specky.txt
+extracted <plugin/specky.vim>: 347 lines
+"~/.vim/plugin/specky.vim" [New] 347L, 8606C written
+wrote /Users/c9s/.vim/plugin/specky.vim
+extracted <snippets/rspec.snippets>: 168 lines
+"~/.vim/snippets/rspec.snippets" [New] 168L, 4073C written
+wrote /Users/c9s/.vim/snippets/rspec.snippets
+Error detected while processing function vimball#Vimball:
+line  154:
+E154: Duplicate tag "fuzzyfinder" in file /Users/c9s/.vim/doc/fuzzyfinder.txt
+E154: Duplicate tag "growlnotify.vim" in file /Users/c9s/.vim/doc/growlnotify.vim.txt
+E154: Duplicate tag "libperl.vim" in file /Users/c9s/.vim/doc/libperl.vim.txt
+E154: Duplicate tag "plurk.vim" in file /Users/c9s/.vim/doc/plurk.vim.txt
+E154: Duplicate tag "spidermonkey.vim" in file /Users/c9s/.vim/doc/spidermonkey.vim.txt
+E154: Duplicate tag "xx_key" in file /Users/c9s/.vim/doc/libperl.vim.txt
+E154: Duplicate tag "xx_key" in file /Users/c9s/.vim/doc/plurk.vim.txt
+E154: Duplicate tag "xx_key" in file /Users/c9s/.vim/doc/spidermonkey.vim.txt
+E154: Duplicate tag "fuzzyfinder" in file /Users/c9s/.vim/doc/fuzzyfinder.jax
+did helptags
+".VimballRecord" 0L, 0C
+".VimballRecord" 1L, 407C written
