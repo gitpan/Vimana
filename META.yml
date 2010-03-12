@@ -4,6 +4,7 @@ author:
   - 'You-An Lin <cornelius.howl@gmail.com>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
+  Test::More: 0.92
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
@@ -22,7 +23,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2010.06903
+    version: 2010.06905
   Vimana::Archive:
     file: lib/Vimana/Archive.pm
   Vimana::Command:
@@ -55,6 +56,8 @@ provides:
     file: lib/Vimana/Installer.pm
   Vimana::Installer::Auto:
     file: lib/Vimana/Installer/Auto.pm
+  Vimana::Installer::Makefile:
+    file: lib/Vimana/Installer/Makefile.pm
   Vimana::Installer::Meta:
     file: lib/Vimana/Installer/Meta.pm
   Vimana::Installer::Rakefile:
@@ -97,10 +100,9 @@ requires:
   LWP::Simple: 0
   LWP::UserAgent: 0
   Mouse: 0
-  Test::More: 0
   URI: 1.37
   YAML: 0
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2010.06903
+version: 2010.06905
