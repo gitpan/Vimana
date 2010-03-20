@@ -20,8 +20,8 @@
 #     NAME => q[Vimana]
 #     NO_META => q[1]
 #     PL_FILES => {  }
-#     PREREQ_PM => { DateTime=>q[0], YAML=>q[0], File::Spec=>q[0], JSON::XS=>q[0], Mouse=>q[0], Digest::MD5=>q[0], File::Path=>q[2.07], HTTP::Lite=>q[0], LWP::Simple=>q[0], Getopt::Long=>q[0], URI=>q[1.37], Exporter::Lite=>q[0], ExtUtils::MakeMaker=>q[6.42], App::CLI=>q[0.08], Test::More=>q[0.92], LWP::UserAgent=>q[0], File::Type=>q[0], Archive::Extract=>q[0], File::Temp=>q[0], JSON=>q[0] }
-#     VERSION => q[2010.06905]
+#     PREREQ_PM => { DateTime=>q[0], YAML=>q[0], File::Spec=>q[0], Mouse=>q[0], Digest::MD5=>q[0], File::Path=>q[2.07], HTTP::Lite=>q[0], LWP::Simple=>q[0], Getopt::Long=>q[0], URI=>q[1.37], Exporter::Lite=>q[0], ExtUtils::MakeMaker=>q[6.42], App::CLI=>q[0.08], Test::More=>q[0.92], JSON::PP=>q[0], LWP::UserAgent=>q[0], File::Type=>q[0], Archive::Extract=>q[0], File::Temp=>q[0] }
+#     VERSION => q[2010.08]
 #     dist => { PREOP=>q[$(PERL) -I. "-MModule::Install::Admin" -e "dist_preop(q($(DISTVNAME)))"] }
 #     realclean => { FILES=>q[MYMETA.yml] }
 #     test => { TESTS=>q[t/00-commands.t t/00-install.t t/00-load.t t/00-path.t t/00-update.t t/01-installer.t t/01-record.t t/script-content-inspecting.t] }
@@ -63,11 +63,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Vimana
 NAME_SYM = Vimana
-VERSION = 2010.06905
+VERSION = 2010.08
 VERSION_MACRO = VERSION
-VERSION_SYM = 2010_06905
+VERSION_SYM = 2010_08
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 2010.06905
+XS_VERSION = 2010.08
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -373,7 +373,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Vimana
-DISTVNAME = Vimana-2010.06905
+DISTVNAME = Vimana-2010.08
 
 
 # --- MakeMaker macro section:
@@ -939,7 +939,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2010.06905">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2010.08">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Vim script port manager</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>You-An Lin &lt;cornelius.howl@gmail.com&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
@@ -955,8 +955,7 @@ ppd :
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="File::Type" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Getopt::Long" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="HTTP::Lite" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="JSON::" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="JSON::XS" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="JSON::PP" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="LWP::Simple" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="LWP::UserAgent" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Mouse::" />' >> $(DISTNAME).ppd
