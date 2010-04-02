@@ -21,8 +21,8 @@
 #     NO_META => q[1]
 #     PL_FILES => {  }
 #     PREREQ_PM => { DateTime=>q[0], YAML=>q[0], File::Spec=>q[0], Mouse=>q[0], Digest::MD5=>q[0], File::Path=>q[2.07], HTTP::Lite=>q[0], LWP::Simple=>q[0], Getopt::Long=>q[0], URI=>q[1.37], Exporter::Lite=>q[0], ExtUtils::MakeMaker=>q[6.42], App::CLI=>q[0.08], Test::More=>q[0.92], JSON::PP=>q[0], LWP::UserAgent=>q[0], File::Type=>q[0], Archive::Extract=>q[0], File::Temp=>q[0] }
-#     VERSION => q[2010.08]
-#     dist => { PREOP=>q[$(PERL) -I. "-MModule::Install::Admin" -e "dist_preop(q($(DISTVNAME)))"] }
+#     VERSION => q[2010.09302]
+#     dist => {  }
 #     realclean => { FILES=>q[MYMETA.yml] }
 #     test => { TESTS=>q[t/00-commands.t t/00-install.t t/00-load.t t/00-path.t t/00-update.t t/01-installer.t t/01-record.t t/script-content-inspecting.t] }
 
@@ -63,11 +63,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Vimana
 NAME_SYM = Vimana
-VERSION = 2010.08
+VERSION = 2010.09302
 VERSION_MACRO = VERSION
-VERSION_SYM = 2010_08
+VERSION_SYM = 2010_09302
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 2010.08
+XS_VERSION = 2010.09302
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -205,9 +205,7 @@ PERL_ARCHIVE       =
 PERL_ARCHIVE_AFTER = 
 
 
-TO_INST_PM = bundle.pl \
-	http.pl \
-	lib/Vimana.pm \
+TO_INST_PM = lib/Vimana.pm \
 	lib/Vimana/Archive.pm \
 	lib/Vimana/Command.pm \
 	lib/Vimana/Command/Download.pm \
@@ -236,11 +234,14 @@ TO_INST_PM = bundle.pl \
 	lib/Vimana/Util.pm \
 	lib/Vimana/VimOnline.pm \
 	lib/Vimana/VimOnline/ScriptPage.pm \
-	lib/Vimana/VimOnline/Search.pm \
-	lwp.pl
+	lib/Vimana/VimOnline/Search.pm
 
-PM_TO_BLIB = bundle.pl \
-	$(INST_LIB)/bundle.pl \
+PM_TO_BLIB = lib/Vimana/Installer/Auto.pm \
+	blib/lib/Vimana/Installer/Auto.pm \
+	lib/Vimana/Installer/Vimball.pm \
+	blib/lib/Vimana/Installer/Vimball.pm \
+	lib/Vimana/Record.pm \
+	blib/lib/Vimana/Record.pm \
 	lib/Vimana/GitInstall.pm \
 	blib/lib/Vimana/GitInstall.pm \
 	lib/Vimana/Installer/Meta.pm \
@@ -249,10 +250,20 @@ PM_TO_BLIB = bundle.pl \
 	blib/lib/Vimana/Recursive.pm \
 	lib/Vimana/Command/Upgrade.pm \
 	blib/lib/Vimana/Command/Upgrade.pm \
-	lwp.pl \
-	$(INST_LIB)/lwp.pl \
+	lib/Vimana/VimOnline/ScriptPage.pm \
+	blib/lib/Vimana/VimOnline/ScriptPage.pm \
+	lib/Vimana/Command/Installed.pm \
+	blib/lib/Vimana/Command/Installed.pm \
+	lib/Vimana/Command/Info.pm \
+	blib/lib/Vimana/Command/Info.pm \
+	lib/Vimana/Command/Download.pm \
+	blib/lib/Vimana/Command/Download.pm \
+	lib/Vimana/Command/Install.pm \
+	blib/lib/Vimana/Command/Install.pm \
 	lib/Vimana/VimOnline.pm \
 	blib/lib/Vimana/VimOnline.pm \
+	lib/Vimana/Installer/Makefile.pm \
+	blib/lib/Vimana/Installer/Makefile.pm \
 	lib/Vimana/Command/Remove.pm \
 	blib/lib/Vimana/Command/Remove.pm \
 	lib/Vimana/Index.pm \
@@ -261,50 +272,30 @@ PM_TO_BLIB = bundle.pl \
 	blib/lib/Vimana/Logger.pm \
 	lib/Vimana/Command.pm \
 	blib/lib/Vimana/Command.pm \
-	lib/Vimana/Util.pm \
-	blib/lib/Vimana/Util.pm \
-	lib/Vimana/Manual.pm \
-	blib/lib/Vimana/Manual.pm \
-	lib/Vimana/VimOnline/Search.pm \
-	blib/lib/Vimana/VimOnline/Search.pm \
-	lib/Vimana/Command/Search.pm \
-	blib/lib/Vimana/Command/Search.pm \
-	lib/Vimana/Installer/Auto.pm \
-	blib/lib/Vimana/Installer/Auto.pm \
-	lib/Vimana/Record.pm \
-	blib/lib/Vimana/Record.pm \
-	lib/Vimana/Installer/Vimball.pm \
-	blib/lib/Vimana/Installer/Vimball.pm \
-	lib/Vimana/VimOnline/ScriptPage.pm \
-	blib/lib/Vimana/VimOnline/ScriptPage.pm \
-	lib/Vimana/Command/Download.pm \
-	blib/lib/Vimana/Command/Download.pm \
-	lib/Vimana/Command/Info.pm \
-	blib/lib/Vimana/Command/Info.pm \
-	lib/Vimana/Command/Installed.pm \
-	blib/lib/Vimana/Command/Installed.pm \
-	lib/Vimana/Command/Install.pm \
-	blib/lib/Vimana/Command/Install.pm \
-	lib/Vimana/Installer/Makefile.pm \
-	blib/lib/Vimana/Installer/Makefile.pm \
 	lib/Vimana/Archive.pm \
 	blib/lib/Vimana/Archive.pm \
-	http.pl \
-	$(INST_LIB)/http.pl \
 	lib/Vimana/Command/Rate.pm \
 	blib/lib/Vimana/Command/Rate.pm \
+	lib/Vimana/Util.pm \
+	blib/lib/Vimana/Util.pm \
 	lib/Vimana/Command/Update.pm \
 	blib/lib/Vimana/Command/Update.pm \
+	lib/Vimana/Manual.pm \
+	blib/lib/Vimana/Manual.pm \
 	lib/Vimana/Command/Help.pm \
 	blib/lib/Vimana/Command/Help.pm \
 	lib/Vimana/Installer.pm \
 	blib/lib/Vimana/Installer.pm \
+	lib/Vimana/VimOnline/Search.pm \
+	blib/lib/Vimana/VimOnline/Search.pm \
 	lib/Vimana/Installer/Text.pm \
 	blib/lib/Vimana/Installer/Text.pm \
-	lib/Vimana.pm \
-	blib/lib/Vimana.pm \
+	lib/Vimana/Command/Search.pm \
+	blib/lib/Vimana/Command/Search.pm \
 	lib/Vimana/Installer/Rakefile.pm \
-	blib/lib/Vimana/Installer/Rakefile.pm
+	blib/lib/Vimana/Installer/Rakefile.pm \
+	lib/Vimana.pm \
+	blib/lib/Vimana.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -365,7 +356,7 @@ ZIPFLAGS = -r
 COMPRESS = gzip --best
 SUFFIX = .gz
 SHAR = shar
-PREOP = $(PERL) -I. "-MModule::Install::Admin" -e "dist_preop(q($(DISTVNAME)))"
+PREOP = $(NOECHO) $(NOOP)
 POSTOP = $(NOECHO) $(NOOP)
 TO_UNIX = $(NOECHO) $(NOOP)
 CI = ci -u
@@ -373,7 +364,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Vimana
-DISTVNAME = Vimana-2010.08
+DISTVNAME = Vimana-2010.09302
 
 
 # --- MakeMaker macro section:
@@ -530,10 +521,10 @@ manifypods : pure_all  \
 	bin/vim_record \
 	lib/Vimana/Installer/Auto.pm \
 	lib/Vimana/Command/Install.pm \
-	lib/Vimana/Command/Remove.pm \
-	lib/Vimana/Index.pm \
 	lib/Vimana/Record.pm \
 	lib/Vimana/Installer/Makefile.pm \
+	lib/Vimana/Command/Remove.pm \
+	lib/Vimana/Index.pm \
 	lib/Vimana/Logger.pm \
 	lib/Vimana/Recursive.pm \
 	lib/Vimana/Util.pm \
@@ -550,10 +541,10 @@ manifypods : pure_all  \
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) \
 	  lib/Vimana/Installer/Auto.pm $(INST_MAN3DIR)/Vimana::Installer::Auto.$(MAN3EXT) \
 	  lib/Vimana/Command/Install.pm $(INST_MAN3DIR)/Vimana::Command::Install.$(MAN3EXT) \
-	  lib/Vimana/Command/Remove.pm $(INST_MAN3DIR)/Vimana::Command::Remove.$(MAN3EXT) \
-	  lib/Vimana/Index.pm $(INST_MAN3DIR)/Vimana::Index.$(MAN3EXT) \
 	  lib/Vimana/Record.pm $(INST_MAN3DIR)/Vimana::Record.$(MAN3EXT) \
 	  lib/Vimana/Installer/Makefile.pm $(INST_MAN3DIR)/Vimana::Installer::Makefile.$(MAN3EXT) \
+	  lib/Vimana/Command/Remove.pm $(INST_MAN3DIR)/Vimana::Command::Remove.$(MAN3EXT) \
+	  lib/Vimana/Index.pm $(INST_MAN3DIR)/Vimana::Index.$(MAN3EXT) \
 	  lib/Vimana/Logger.pm $(INST_MAN3DIR)/Vimana::Logger.$(MAN3EXT) \
 	  lib/Vimana/Recursive.pm $(INST_MAN3DIR)/Vimana::Recursive.$(MAN3EXT) \
 	  lib/Vimana/Util.pm $(INST_MAN3DIR)/Vimana::Util.$(MAN3EXT) \
@@ -925,7 +916,6 @@ subdirs-test ::
 
 test_dynamic :: pure_all
 	PERL_DL_NONLAZY=1 $(FULLPERLRUN) "-MExtUtils::Command::MM" "-e" "test_harness($(TEST_VERBOSE), 'inc', '$(INST_LIB)', '$(INST_ARCHLIB)')" $(TEST_FILES)
-	PERL_DL_NONLAZY=1 $(FULLPERLRUN) "-Iinc" "-I$(INST_LIB)" "-I$(INST_ARCHLIB)" $(TEST_FILE)
 
 testdb_dynamic :: pure_all
 	PERL_DL_NONLAZY=1 $(FULLPERLRUN) $(TESTDB_SW) "-Iinc" "-I$(INST_LIB)" "-I$(INST_ARCHLIB)" $(TEST_FILE)
@@ -939,7 +929,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2010.08">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2010.09302">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Vim script port manager</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>You-An Lin &lt;cornelius.howl@gmail.com&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
@@ -972,39 +962,36 @@ ppd :
 
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  bundle.pl $(INST_LIB)/bundle.pl \
+	  lib/Vimana/Installer/Auto.pm blib/lib/Vimana/Installer/Auto.pm \
+	  lib/Vimana/Installer/Vimball.pm blib/lib/Vimana/Installer/Vimball.pm \
+	  lib/Vimana/Record.pm blib/lib/Vimana/Record.pm \
 	  lib/Vimana/GitInstall.pm blib/lib/Vimana/GitInstall.pm \
 	  lib/Vimana/Installer/Meta.pm blib/lib/Vimana/Installer/Meta.pm \
 	  lib/Vimana/Recursive.pm blib/lib/Vimana/Recursive.pm \
 	  lib/Vimana/Command/Upgrade.pm blib/lib/Vimana/Command/Upgrade.pm \
-	  lwp.pl $(INST_LIB)/lwp.pl \
+	  lib/Vimana/VimOnline/ScriptPage.pm blib/lib/Vimana/VimOnline/ScriptPage.pm \
+	  lib/Vimana/Command/Installed.pm blib/lib/Vimana/Command/Installed.pm \
+	  lib/Vimana/Command/Info.pm blib/lib/Vimana/Command/Info.pm \
+	  lib/Vimana/Command/Download.pm blib/lib/Vimana/Command/Download.pm \
+	  lib/Vimana/Command/Install.pm blib/lib/Vimana/Command/Install.pm \
 	  lib/Vimana/VimOnline.pm blib/lib/Vimana/VimOnline.pm \
+	  lib/Vimana/Installer/Makefile.pm blib/lib/Vimana/Installer/Makefile.pm \
 	  lib/Vimana/Command/Remove.pm blib/lib/Vimana/Command/Remove.pm \
 	  lib/Vimana/Index.pm blib/lib/Vimana/Index.pm \
 	  lib/Vimana/Logger.pm blib/lib/Vimana/Logger.pm \
 	  lib/Vimana/Command.pm blib/lib/Vimana/Command.pm \
-	  lib/Vimana/Util.pm blib/lib/Vimana/Util.pm \
-	  lib/Vimana/Manual.pm blib/lib/Vimana/Manual.pm \
-	  lib/Vimana/VimOnline/Search.pm blib/lib/Vimana/VimOnline/Search.pm \
-	  lib/Vimana/Command/Search.pm blib/lib/Vimana/Command/Search.pm \
-	  lib/Vimana/Installer/Auto.pm blib/lib/Vimana/Installer/Auto.pm \
-	  lib/Vimana/Record.pm blib/lib/Vimana/Record.pm \
-	  lib/Vimana/Installer/Vimball.pm blib/lib/Vimana/Installer/Vimball.pm \
-	  lib/Vimana/VimOnline/ScriptPage.pm blib/lib/Vimana/VimOnline/ScriptPage.pm \
-	  lib/Vimana/Command/Download.pm blib/lib/Vimana/Command/Download.pm \
-	  lib/Vimana/Command/Info.pm blib/lib/Vimana/Command/Info.pm \
-	  lib/Vimana/Command/Installed.pm blib/lib/Vimana/Command/Installed.pm \
-	  lib/Vimana/Command/Install.pm blib/lib/Vimana/Command/Install.pm \
-	  lib/Vimana/Installer/Makefile.pm blib/lib/Vimana/Installer/Makefile.pm \
 	  lib/Vimana/Archive.pm blib/lib/Vimana/Archive.pm \
-	  http.pl $(INST_LIB)/http.pl \
 	  lib/Vimana/Command/Rate.pm blib/lib/Vimana/Command/Rate.pm \
+	  lib/Vimana/Util.pm blib/lib/Vimana/Util.pm \
 	  lib/Vimana/Command/Update.pm blib/lib/Vimana/Command/Update.pm \
+	  lib/Vimana/Manual.pm blib/lib/Vimana/Manual.pm \
 	  lib/Vimana/Command/Help.pm blib/lib/Vimana/Command/Help.pm \
 	  lib/Vimana/Installer.pm blib/lib/Vimana/Installer.pm \
+	  lib/Vimana/VimOnline/Search.pm blib/lib/Vimana/VimOnline/Search.pm \
 	  lib/Vimana/Installer/Text.pm blib/lib/Vimana/Installer/Text.pm \
-	  lib/Vimana.pm blib/lib/Vimana.pm \
-	  lib/Vimana/Installer/Rakefile.pm blib/lib/Vimana/Installer/Rakefile.pm 
+	  lib/Vimana/Command/Search.pm blib/lib/Vimana/Command/Search.pm \
+	  lib/Vimana/Installer/Rakefile.pm blib/lib/Vimana/Installer/Rakefile.pm \
+	  lib/Vimana.pm blib/lib/Vimana.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 
@@ -1016,25 +1003,6 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 
 # End.
 # Postamble by Module::Install 0.91
-# --- Module::Install::Admin::Makefile section:
-
-realclean purge ::
-	$(RM_F) $(DISTVNAME).tar$(SUFFIX)
-	$(RM_F) MANIFEST.bak _build
-	$(PERL) "-Ilib" "-MModule::Install::Admin" -e "remove_meta()"
-	$(RM_RF) inc
-
-reset :: purge
-
-upload :: test dist
-	cpan-upload -verbose $(DISTVNAME).tar$(SUFFIX)
-
-grok ::
-	perldoc Module::Install
-
-distsign ::
-	cpansign -s
-
 # --- Module::Install::AutoInstall section:
 
 config :: installdeps

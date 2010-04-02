@@ -26,10 +26,21 @@ sub get_mine_type {
 sub findbin {
     my $which = shift;
     my $path = $ENV{PATH};
-    my @paths = split /:/,$path;
-    for ( @paths ) {
-        my $bin = $_ . '/' . $which;
-        return $bin if( -x $bin ) ;
+    if ($^O eq 'MSWin32') {
+        my @exts = split /;/,$ENV{PATHEXT};
+        my @paths = split /;/,$path;
+        for my $p ( @paths ) {
+            for my $e ( @exts ) {
+                my $bin = $p . '/' . $which . $e;
+                return $bin if( -x $bin ) ;
+            }
+        }
+    } else {
+        my @paths = split /:/,$path;
+        for ( @paths ) {
+            my $bin = $_ . '/' . $which;
+            return $bin if( -x $bin ) ;
+        }
     }
 }
 
@@ -41,7 +52,11 @@ sub get_vim_rtp {
     my $file = 'rtp.tmp';
     # XXX: check vim binary
 
-    system(qq{vim -c "redir > $file" -c "echo &rtp" -c "q" });
+    if ($^O eq 'MSWin32') {
+        system(qq{vim -c "redir > $file" -c "echo &rtp" -c "silent! q" 2> NUL });
+    } else {
+        system(qq{vim -c "redir > $file" -c "echo &rtp" -c "q" });
+	}
     open FILE, "<" , $file;
     local $/;
     my $content = <FILE>;
@@ -52,8 +67,11 @@ sub get_vim_rtp {
 }
 
 sub runtime_path {
-    my @rtps = get_vim_rtp();
-    return $ENV{VIMANA_RUNTIME_PATH} || $rtps[0];
+    return $ENV{VIMANA_RUNTIME_PATH} ||
+        do {
+            my @rtps = get_vim_rtp();
+            $rtps[0]
+        };
 }
 
 use File::Spec;
