@@ -43,6 +43,15 @@ my $base_uri = 'http://www.vim.org';
 sub display {
     my ( $class, $info ) = @_;
 
+    if ($^O eq 'MSWin32') {
+        eval { require "Win32/API.pm" };
+        unless ($@) {
+            Win32::API->Import('kernel32', 'UINT GetACP()');
+            my $cp = "cp".GetACP();
+            binmode STDOUT, ":encoding($cp)";
+        }
+    }
+
     print <<INFO;
 
  @{[ $info->{title} ]}              
@@ -58,11 +67,11 @@ sub display {
 
  DESCRIPTION:
 
- @{ [ wrap( ' ' x 4, '  ', $info->{description} ) ] }
+ @{ [ wrap( ' ', '  ', $info->{description} ) ] }
 
  INSTALL DETAILS:
 
- @{ [ wrap( ' ' x 4, '  ', $info->{install_details} ) ] }
+ @{ [ wrap( ' ', '  ', $info->{install_details} ) ] }
 
  FILENAME:   @{ [ $info->{filename} ] }
 
@@ -81,7 +90,7 @@ sub parse {
     my ( $class , $content ) = @_;
 
     use Encode qw(decode);
-    $content = decode('iso-8859-1' , $content );
+    $content = decode('utf-8' , $content );
     # map { $info{$_} = decode( 'iso-8859-1' ,  $info{$_} )  }  keys %info;
 
     my %info = ();
@@ -115,10 +124,11 @@ sub parse {
             $info{$_} =~ s{</?.+?>}{}g;
             $info{$_} =~ s{\s*$}{}g;
             $info{$_} =~ s{^\s*}{}g;
+            $info{$_} =~ s{&nbsp;}{ }g; # windows don't have 0xA0.
+            $info{$_} =~ s{\r}{}g;
     }  keys %info;
 
-
-    map { $info{$_} = decode_entities( $info{$_} )  }  keys %info;
+    map { $info{$_} = decode_entities( $info{$_} ) }  keys %info;
 
     $info{author_url} = $base_uri . $info{author_url};
     $info{download}   = $base_uri . '/scripts/' . $info{download};

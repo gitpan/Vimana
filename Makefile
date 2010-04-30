@@ -21,7 +21,7 @@
 #     NO_META => q[1]
 #     PL_FILES => {  }
 #     PREREQ_PM => { DateTime=>q[0], YAML=>q[0], File::Spec=>q[0], Mouse=>q[0], Digest::MD5=>q[0], File::Path=>q[2.07], HTTP::Lite=>q[0], LWP::Simple=>q[0], Getopt::Long=>q[0], URI=>q[1.37], Exporter::Lite=>q[0], ExtUtils::MakeMaker=>q[6.42], App::CLI=>q[0.08], Test::More=>q[0.92], JSON::PP=>q[0], LWP::UserAgent=>q[0], File::Type=>q[0], Archive::Extract=>q[0], File::Temp=>q[0] }
-#     VERSION => q[2010.09302]
+#     VERSION => q[2010.09303]
 #     dist => {  }
 #     realclean => { FILES=>q[MYMETA.yml] }
 #     test => { TESTS=>q[t/00-commands.t t/00-install.t t/00-load.t t/00-path.t t/00-update.t t/01-installer.t t/01-record.t t/script-content-inspecting.t] }
@@ -63,11 +63,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Vimana
 NAME_SYM = Vimana
-VERSION = 2010.09302
+VERSION = 2010.09303
 VERSION_MACRO = VERSION
-VERSION_SYM = 2010_09302
+VERSION_SYM = 2010_09303
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 2010.09302
+XS_VERSION = 2010.09303
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -364,7 +364,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Vimana
-DISTVNAME = Vimana-2010.09302
+DISTVNAME = Vimana-2010.09303
 
 
 # --- MakeMaker macro section:
@@ -929,7 +929,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2010.09302">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="2010.09303">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Vim script port manager</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>You-An Lin &lt;cornelius.howl@gmail.com&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
