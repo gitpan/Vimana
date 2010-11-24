@@ -25,7 +25,7 @@ sub run {
         print "Updating index..\n";
         my $result = Vimana::VimOnline::Search->fetch(
                 keyword => '',
-                show_me => 5000,
+                show_me => Vimana::VimOnline::Search->all_vim_plugins,
                 order_by => 'creation_date',
                 direction => 'ascending'
         );
