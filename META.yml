@@ -22,7 +22,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2.22
+    version: 2.23
   Vimana::Archive:
     file: lib/Vimana/Archive.pm
   Vimana::Command:
@@ -85,6 +85,7 @@ provides:
 requires:
   App::CLI: 0.08
   Archive::Extract: 0
+  Data::Util: 0
   DateTime: 0
   Digest::MD5: 0
   Exporter::Lite: 0
@@ -99,6 +100,7 @@ requires:
   LWP::Simple: 0
   LWP::UserAgent: 0
   Mouse: 0
+  Path::Class: 0
   Regexp::Common: 0
   Text::Wrap: 0
   URI: 1.37
@@ -107,4 +109,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2.22
+version: 2.23
