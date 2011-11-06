@@ -31,14 +31,12 @@ requires
     'Regexp::Common'   => 0,
     'Web::Scraper'     => 0,
     'Regexp::Common'   => 0,
+	'parent'           => 0,
     'Web::Scraper'     => 0;
 
-requires 'Data::Util';
-requires 'Path::Class';
 
 test_requires 
     'Test::More' => 0.92;
-
 
 include('ExtUtils::AutoInstall');
 auto_install();

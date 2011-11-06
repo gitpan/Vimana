@@ -1,7 +1,7 @@
 package Vimana::Util;
 use warnings;
 use strict;
-use base qw(Exporter::Lite);
+use parent qw(Exporter::Lite);
 use File::Type;
 our @EXPORT = qw(canonical_script_name find_vim get_vim_rtp);
 our @EXPORT_OK = qw(findbin find_vim runtime_path);
@@ -62,6 +62,7 @@ sub get_vim_rtp {
     my $content = <FILE>;
     close FILE;
     $content =~ s{[\n\r]}{}g;
+    $content =~ s/^ *(.*?) *$/$1/;
     unlink $file;
     return split /,/,$content;
 }

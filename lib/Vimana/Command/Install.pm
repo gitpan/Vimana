@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 package Vimana::Command::Install;
-use base qw(App::CLI::Command);
+use parent qw(App::CLI::Command);
 use URI;
 use LWP::Simple qw();
 use File::Path qw(rmtree);
@@ -38,7 +38,19 @@ sub run {
         Vimana::Installer->install_from_url( $arg , $cmd );
     }
     elsif( $arg =~ m{^(?:git|svn):} ) {
+        # parse repo name as package name:
+        my ($name) = ($arg =~ m{([^/]+)\.git$});
+        $cmd->{package_name} ||= $name;
         Vimana::Installer->install_from_vcs( $arg , $cmd );
+    }
+    elsif( $arg =~ m{^(?:github|gh):([^/]+)/([^/]+)} ) {
+        print "Installing from GitHub...\n";
+        my ($id,$repo) = ($1,$2);
+        my $gh_uri = "git:https://github.com/$id/$repo.git";
+        print $gh_uri . "\n";
+        my $name   = "$id-$repo";
+        $cmd->{package_name} ||= $name;
+        Vimana::Installer->install_from_vcs( $gh_uri , $cmd );
     }
     elsif( -f $arg or -d $arg ) {  # is a file or directory
         Vimana::Installer->install_from_path( $arg , $cmd );
