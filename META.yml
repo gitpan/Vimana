@@ -8,8 +8,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.03'
+generated_by: 'Module::Install version 1.02'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -23,7 +22,7 @@ no_index:
 provides:
   Vimana:
     file: lib/Vimana.pm
-    version: 2.25
+    version: 2.26
   Vimana::Archive:
     file: lib/Vimana/Archive.pm
   Vimana::Command:
@@ -86,6 +85,7 @@ provides:
 requires:
   App::CLI: 0.08
   Archive::Extract: 0
+  Archive::Zip: 0
   DateTime: 0
   Digest::MD5: 0
   Exporter::Lite: 0
@@ -100,6 +100,7 @@ requires:
   LWP::Simple: 0
   LWP::UserAgent: 0
   Mouse: 0
+  Path::Class: 0
   Regexp::Common: 0
   Text::Wrap: 0
   URI: 1.37
@@ -109,4 +110,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/c9s/Vimana
-version: 2.25
+version: 2.26
